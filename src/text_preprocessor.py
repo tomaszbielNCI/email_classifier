@@ -85,43 +85,43 @@ class TextPreprocessor:
         }
     
     def clean_text(self, text: str, lowercase: bool = True) -> str:
-        """Czyści pojedynczy tekst"""
+        """Clean single text"""
         if not isinstance(text, str) or text == "":
             return ""
             
         if lowercase:
             text = text.lower()
         
-        # Usuń szum ticketowy
+        # Remove ticket noise
         for pattern in self.noise_patterns['ticket_noise']:
             text = re.sub(pattern, " ", text)
         
-        # Usuń dodatkowe białe znaki
+        # Remove extra whitespace
         text = re.sub(r'\s+', ' ', text).strip()
         
         return text
     
     def clean_ticket_summary(self, text: str) -> str:
-        """Czyści podsumowanie ticketu"""
+        """Clean ticket summary"""
         return self.clean_text(text)
     
     def clean_interaction_content(self, text: str) -> str:
-        """Czyści treść interakcji"""
+        """Clean interaction content"""
         if not isinstance(text, str) or text == "":
             return ""
             
         text = text.lower()
         
-        # Zastosuj wszystkie wzorce szumu
+        # Apply all noise patterns
         for category, patterns in self.noise_patterns.items():
             if category == 'ticket_noise':
-                continue  # Już zastosowane w clean_text
+                continue  # Already applied in clean_text
                 
             for pattern in patterns:
                 text = re.sub(pattern, " ", text)
-                logging.debug(f"Zastosowano wzorzec {category}: {pattern}")
+                logging.debug(f"Applied pattern {category}: {pattern}")
         
-        # Usuń dodatkowe białe znaki
+        # Remove extra whitespace
         text = re.sub(r'\s+', ' ', text).strip()
         
         return text
@@ -183,10 +183,10 @@ class TextPreprocessor:
 
 
 if __name__ == "__main__":
-    # Przykład użycia
+    # Usage example
     import pandas as pd
     
-    # Przykładowe dane
+    # Sample data
     data = {
         'Ticket Summary': ['RE: Issue with app', 'FW: Customer complaint', ''],
         'Interaction content': ['Dear customer, thank you for contacting us. We will help you with your issue.', 'Hello, I have a problem with my application.', '']
@@ -196,11 +196,11 @@ if __name__ == "__main__":
     preprocessor = TextPreprocessor()
     df_clean = preprocessor.preprocess_dataframe(df)
     
-    print("Oryginalne dane:")
+    print("Original data:")
     print(data)
-    print("\nPrzetworzone dane:")
+    print("\nProcessed data:")
     print(df_clean[['ts', 'ic']].head())
     
-    # Statystyki
+    # Statistics
     stats = preprocessor.get_text_statistics(df_clean, 'ic')
-    print(f"\nStatystyki tekstu: {stats}")
+    print(f"\nText statistics: {stats}")

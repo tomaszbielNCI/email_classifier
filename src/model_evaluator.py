@@ -28,21 +28,21 @@ class ModelEvaluator:
         class_names: Optional[List[str]] = None,
         model_name: str = "model"
     ) -> Dict[str, Any]:
-        """Kompleksowa ewaluacja klasyfikacji"""
+        """Comprehensive classification evaluation"""
         
-        # Podstawowe metryki
+        # Basic metrics
         accuracy = accuracy_score(y_true, y_pred)
         precision = precision_score(y_true, y_pred, average='weighted', zero_division=0)
         recall = recall_score(y_true, y_pred, average='weighted', zero_division=0)
         f1 = f1_score(y_true, y_pred, average='weighted', zero_division=0)
         
-        # Raport klasyfikacji
+        # Classification report
         class_report = classification_report(y_true, y_pred, target_names=class_names, output_dict=True)
         
-        # Macierz pomyłek
+        # Confusion matrix
         cm = confusion_matrix(y_true, y_pred)
         
-        # Wyniki
+        # Results
         results = {
             'model_name': model_name,
             'accuracy': accuracy,
@@ -54,19 +54,19 @@ class ModelEvaluator:
             'class_names': class_names or [f'Class_{i}' for i in range(len(np.unique(y_true)))]
         }
         
-        # Metryki dla danych prawdopodobieństwa
+        # Probability-based metrics
         if y_proba is not None:
             proba_results = self._evaluate_probabilities(y_true, y_pred, y_proba, class_names)
             results.update(proba_results)
         
-        # Analiza per klasa
+        # Per-class analysis
         per_class_results = self._analyze_per_class_performance(y_true, y_pred, class_names)
         results['per_class_analysis'] = per_class_results
         
-        # Zapisz wyniki
+        # Save results
         self.evaluation_results[model_name] = results
         
-        logging.info(f"Ewaluacja modelu {model_name}: accuracy={accuracy:.4f}, f1={f1:.4f}")
+        logging.info(f"Model evaluation {model_name}: accuracy={accuracy:.4f}, f1={f1:.4f}")
         
         return results
     
@@ -77,11 +77,11 @@ class ModelEvaluator:
         y_proba: Union[pd.DataFrame, np.ndarray],
         class_names: Optional[List[str]]
     ) -> Dict[str, Any]:
-        """Ewaluacja metryk opartych na prawdopodobieństwach"""
+        """Evaluate probability-based metrics"""
         
         results = {}
         
-        # Konwertuj na numpy array
+        # Convert to numpy array
         if isinstance(y_proba, pd.DataFrame):
             y_proba = y_proba.values
         
@@ -90,7 +90,7 @@ class ModelEvaluator:
         if n_classes == 2:
             # Binary classification
             if y_proba.shape[1] == 2:
-                y_score = y_proba[:, 1]  # Prawdopodobieństwo klasy pozytywnej
+                y_score = y_proba[:, 1]  # Positive class probability
             else:
                 y_score = y_proba[:, 0]
             
@@ -105,12 +105,12 @@ class ModelEvaluator:
                 results['precision_recall_curve'] = {'precision': precision, 'recall': recall}
                 
             except Exception as e:
-                logging.warning(f"Błąd podczas obliczania AUC: {e}")
+                logging.warning(f"Error calculating AUC: {e}")
         
         else:
             # Multi-class classification
             try:
-                # Binarizuj etykiety
+                # Binarize labels
                 y_true_bin = label_binarize(y_true, classes=range(n_classes))
                 
                 if y_proba.shape[1] == n_classes:
@@ -118,7 +118,7 @@ class ModelEvaluator:
                     results['auc_roc'] = auc_roc
                 
             except Exception as e:
-                logging.warning(f"Błąd podczas obliczania multi-class AUC: {e}")
+                logging.warning(f"Error calculating multi-class AUC: {e}")
         
         return results
     
@@ -128,7 +128,7 @@ class ModelEvaluator:
         y_pred: Union[pd.Series, np.ndarray],
         class_names: Optional[List[str]]
     ) -> Dict[str, Dict]:
-        """Analiza wydajności per klasa"""
+        """Analyze per-class performance"""
         
         unique_classes = np.unique(y_true)
         if class_names is None:
@@ -145,7 +145,7 @@ class ModelEvaluator:
             tn = np.sum((y_true != class_label) & (y_pred != class_label))
             fn = np.sum((y_true == class_label) & (y_pred != class_label))
             
-            # Metryki per klasa
+            # Per-class metrics
             precision = tp / (tp + fp) if (tp + fp) > 0 else 0
             recall = tp / (tp + fn) if (tp + fn) > 0 else 0
             f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
@@ -165,7 +165,7 @@ class ModelEvaluator:
         return per_class
     
     def compare_models(self, model_names: Optional[List[str]] = None) -> pd.DataFrame:
-        """Porównuje wyniki wielu modeli"""
+        """Compare results of multiple models"""
         
         if model_names is None:
             model_names = list(self.evaluation_results.keys())
@@ -174,7 +174,7 @@ class ModelEvaluator:
         
         for model_name in model_names:
             if model_name not in self.evaluation_results:
-                logging.warning(f"Brak wyników dla modelu {model_name}")
+                logging.warning(f"No results for model {model_name}")
                 continue
             
             results = self.evaluation_results[model_name]
@@ -203,10 +203,10 @@ class ModelEvaluator:
         figsize: Tuple[int, int] = (8, 6),
         normalize: bool = False
     ) -> plt.Figure:
-        """Rysuje macierz pomyłek"""
+        """Plot confusion matrix"""
         
         if model_name not in self.evaluation_results:
-            raise ValueError(f"Brak wyników dla modelu {model_name}")
+            raise ValueError(f"No results for model {model_name}")
         
         results = self.evaluation_results[model_name]
         cm = results['confusion_matrix']
@@ -241,10 +241,10 @@ class ModelEvaluator:
         model_name: str,
         figsize: Tuple[int, int] = (12, 6)
     ) -> plt.Figure:
-        """Rysuje wykres wydajności per klasa"""
+        """Plot per-class performance chart"""
         
         if model_name not in self.evaluation_results:
-            raise ValueError(f"Brak wyników dla modelu {model_name}")
+            raise ValueError(f"No results for model {model_name}")
         
         results = self.evaluation_results[model_name]
         per_class = results['per_class_analysis']
@@ -286,12 +286,12 @@ class ModelEvaluator:
         return fig
     
     def plot_model_comparison(self, figsize: Tuple[int, int] = (12, 8)) -> plt.Figure:
-        """Rysuje wykres porównawczy modeli"""
+        """Plot model comparison chart"""
         
         comparison_df = self.compare_models()
         
         if comparison_df.empty:
-            raise ValueError("Brak wyników do porównania")
+            raise ValueError("No results to compare")
         
         metrics = ['accuracy', 'precision', 'recall', 'f1_score', 'auc_roc']
         available_metrics = [m for m in metrics if m in comparison_df.columns]
@@ -324,20 +324,20 @@ class ModelEvaluator:
         model_name: str,
         save_path: Optional[str] = None
     ) -> str:
-        """Generuje szczegółowy raport ewaluacji"""
+        """Generate detailed evaluation report"""
         
         if model_name not in self.evaluation_results:
-            raise ValueError(f"Brak wyników dla modelu {model_name}")
+            raise ValueError(f"No results for model {model_name}")
         
         results = self.evaluation_results[model_name]
         
         report = f"""
-# Ewaluacja Modelu: {model_name}
+# Model Evaluation: {model_name}
 
-## Podsumowanie Metryk
-- **Dokładność (Accuracy)**: {results['accuracy']:.4f}
-- **Precyzja (Precision)**: {results['precision']:.4f}
-- **Czułość (Recall)**: {results['recall']:.4f}
+## Metrics Summary
+- **Accuracy**: {results['accuracy']:.4f}
+- **Precision**: {results['precision']:.4f}
+- **Recall**: {results['recall']:.4f}
 - **F1-Score**: {results['f1_score']:.4f}
 """
         
@@ -348,15 +348,15 @@ class ModelEvaluator:
             report += f"- **AUC-PR**: {results['auc_pr']:.4f}\n"
         
         report += f"""
-## Analiza Per-Klasa
+## Per-Class Analysis
 """
         
         per_class = results['per_class_analysis']
         for class_name, metrics in per_class.items():
             report += f"""
 ### {class_name}
-- Precyzja: {metrics['precision']:.4f}
-- Czułość: {metrics['recall']:.4f}
+- Precision: {metrics['precision']:.4f}
+- Recall: {metrics['recall']:.4f}
 - F1-Score: {metrics['f1_score']:.4f}
 - Support: {metrics['support']}
 - TP: {metrics['true_positives']}, FP: {metrics['false_positives']}
@@ -364,7 +364,7 @@ class ModelEvaluator:
 """
         
         report += f"""
-## Macierz Pomyłek
+## Confusion Matrix
 {results['confusion_matrix']}
 """
         

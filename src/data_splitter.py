@@ -11,7 +11,7 @@ import logging
 
 class DataSplitter:
     """
-    Krok 9: Train/test split
+    Step 9: Train/test split
     """
     
     def __init__(self, random_state: int = 42):
@@ -26,7 +26,7 @@ class DataSplitter:
         stratify: bool = True
     ) -> Tuple[Union[pd.DataFrame, np.ndarray], Union[pd.DataFrame, np.ndarray], 
                 Union[pd.Series, np.ndarray], Union[pd.Series, np.ndarray]]:
-        """Podstawowy podział train/test"""
+        """Basic train/test split"""
         
         stratify_param = y if stratify and len(np.unique(y)) > 1 else None
         
@@ -58,10 +58,10 @@ class DataSplitter:
         n_splits: int = 5
     ) -> List[Tuple[Union[pd.DataFrame, np.ndarray], Union[pd.DataFrame, np.ndarray], 
                      Union[pd.Series, np.ndarray], Union[pd.Series, np.ndarray]]]:
-        """Stratyfikowany podział z walidacją krzyżową"""
+        """Stratified split with cross-validation"""
         
         if len(np.unique(y)) < 2:
-            raise ValueError("Stratyfikacja wymaga co najmniej 2 klas")
+            raise ValueError("Stratification requires at least 2 classes")
         
         sss = StratifiedShuffleSplit(
             n_splits=n_splits,
@@ -84,7 +84,7 @@ class DataSplitter:
             
             splits.append((X_train, X_test, y_train, y_test))
             
-            logging.info(f"Split {i+1}/{n_splits}: {len(X_train)} treningowych, {len(X_test)} testowych")
+            logging.info(f"Split {i+1}/{n_splits}: {len(X_train)} training, {len(X_test)} test")
         
         self.split_info['stratified'] = {
             'n_splits': n_splits,
@@ -103,12 +103,12 @@ class DataSplitter:
         test_size: float = 0.2,
         validation_size: float = 0.1
     ) -> Tuple[pd.DataFrame, pd.DataFrame, Optional[pd.DataFrame]]:
-        """Podział czasowy (dla danych szeregów czasowych)"""
+        """Temporal split (for time series data)"""
         
         if date_column not in df.columns:
-            raise ValueError(f"Kolumna '{date_column}' nie istnieje")
+            raise ValueError(f"Column '{date_column}' does not exist")
         
-        # Sortuj po dacie
+        # Sort by date
         df_sorted = df.sort_values(date_column).reset_index(drop=True)
         
         n_total = len(df_sorted)
@@ -116,7 +116,7 @@ class DataSplitter:
         n_validation = int(n_total * validation_size)
         n_train = n_total - n_test - n_validation
         
-        # Podział czasowy
+        # Temporal split
         train_df = df_sorted.iloc[:n_train]
         validation_df = df_sorted.iloc[n_train:n_train + n_validation] if n_validation > 0 else None
         test_df = df_sorted.iloc[n_train + n_validation:]
@@ -132,7 +132,7 @@ class DataSplitter:
             }
         }
         
-        logging.info(f"Podział czasowy: {len(train_df)} treningowych, {len(validation_df) if validation_df is not None else 0} walidacyjnych, {len(test_df)} testowych")
+        logging.info(f"Temporal split: {len(train_df)} training, {len(validation_df) if validation_df is not None else 0} validation, {len(test_df)} test")
         
         if validation_df is not None:
             return train_df, validation_df, test_df
@@ -148,27 +148,27 @@ class DataSplitter:
         test_size: float = 0.2,
         max_groups_per_split: Optional[int] = None
     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        """Podział oparty na grupach (np. klienci, produkty)"""
+        """Group-based split (e.g., customers, products)"""
         
         if group_column not in df.columns:
-            raise ValueError(f"Kolumna '{group_column}' nie istnieje")
+            raise ValueError(f"Column '{group_column}' does not exist")
         
-        # Unikalne grupy
+        # Unique groups
         unique_groups = df[group_column].unique()
-        np.random.shuffle(unique_groups)  # Losowa kolejność
+        np.random.shuffle(unique_groups)  # Random order
         
         if max_groups_per_split and len(unique_groups) > max_groups_per_split:
-            # Ogranicz liczbę grup
+            # Limit number of groups
             unique_groups = unique_groups[:max_groups_per_split]
         
-        # Podział grup
+        # Split groups
         n_groups = len(unique_groups)
         n_test_groups = int(n_groups * test_size)
         
         test_groups = unique_groups[:n_test_groups]
         train_groups = unique_groups[n_test_groups:]
         
-        # Podział DataFrame
+        # Split DataFrame
         train_df = df[df[group_column].isin(train_groups)]
         test_df = df[df[group_column].isin(test_groups)]
         
@@ -180,7 +180,7 @@ class DataSplitter:
             'group_column': group_column
         }
         
-        logging.info(f"Podział grupowy: {len(train_groups)} grup treningowych, {len(test_groups)} grup testowych")
+        logging.info(f"Group split: {len(train_groups)} training groups, {len(test_groups)} test groups")
         
         return train_df, test_df
     
@@ -191,7 +191,7 @@ class DataSplitter:
         cv_folds: int = 5,
         stratified: bool = True
     ) -> List[Tuple[Union[pd.DataFrame, np.ndarray], Union[pd.Series, np.ndarray]]]:
-        """Podział dla walidacji krzyżowej"""
+        """Split for cross-validation"""
         
         if stratified and len(np.unique(y)) > 1:
             cv = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=self.random_state)
@@ -214,7 +214,7 @@ class DataSplitter:
             
             splits.append((X_train, X_val, y_train, y_val))
             
-            logging.info(f"CV Fold {i+1}/{cv_folds}: {len(X_train)} treningowych, {len(X_val)} walidacyjnych")
+            logging.info(f"CV Fold {i+1}/{cv_folds}: {len(X_train)} training, {len(X_val)} validation")
         
         self.split_info['cross_validation'] = {
             'cv_folds': cv_folds,
@@ -231,15 +231,15 @@ class DataSplitter:
         outer_folds: int = 5,
         inner_folds: int = 3
     ) -> Dict[str, List]:
-        """Zagnieżdżona walidacja krzyżowa dla optymalizacji hiperparametrów"""
+        """Nested cross-validation for hyperparameter optimization"""
         
-        # Zewnętrzna pętla CV
+        # Outer CV loop
         outer_cv = StratifiedKFold(n_splits=outer_folds, shuffle=True, random_state=self.random_state)
         
         nested_splits = {}
         
         for i, (outer_train_idx, outer_test_idx) in enumerate(outer_cv.split(X, y)):
-            # Podział zewnętrzny
+            # Outer split
             if isinstance(X, pd.DataFrame):
                 X_outer_train, X_outer_test = X.iloc[outer_train_idx], X.iloc[outer_test_idx]
             else:
@@ -250,7 +250,7 @@ class DataSplitter:
             else:
                 y_outer_train, y_outer_test = y[outer_train_idx], y[outer_test_idx]
             
-            # Wewnętrzna pętla CV dla optymalizacji hiperparametrów
+            # Inner CV loop for hyperparameter optimization
             inner_cv = StratifiedKFold(n_splits=inner_folds, shuffle=True, random_state=self.random_state + i)
             inner_splits = []
             
@@ -281,14 +281,14 @@ class DataSplitter:
         return nested_splits
     
     def _get_class_distribution(self, y: Union[pd.Series, np.ndarray]) -> Dict:
-        """Oblicza dystrybucję klas"""
+        """Calculate class distribution"""
         if isinstance(y, np.ndarray):
             y = pd.Series(y)
         
         return y.value_counts().to_dict()
     
     def get_split_summary(self) -> Dict[str, Any]:
-        """Zwraca podsumowanie wszystkich podziałów"""
+        """Returns summary of all splits"""
         return self.split_info
     
     def validate_split_quality(
@@ -298,7 +298,7 @@ class DataSplitter:
         y_train: Union[pd.Series, np.ndarray],
         y_test: Union[pd.Series, np.ndarray]
     ) -> Dict[str, Any]:
-        """Waliduje jakość podziału danych"""
+        """Validate data split quality"""
         
         validation_results = {
             'size_ratio': len(X_test) / len(X_train),
@@ -307,13 +307,13 @@ class DataSplitter:
             'recommendations': []
         }
         
-        # Sprawdź proporcje rozmiaru
+        # Check size proportions
         if validation_results['size_ratio'] < 0.15:
-            validation_results['recommendations'].append("Zbiór testowy jest zbyt mały (< 15%)")
+            validation_results['recommendations'].append("Test set is too small (< 15%)")
         elif validation_results['size_ratio'] > 0.4:
-            validation_results['recommendations'].append("Zbiór testowy jest zbyt duży (> 40%)")
+            validation_results['recommendations'].append("Test set is too large (> 40%)")
         
-        # Sprawdź dryft etykiet
+        # Check label drift
         train_dist = self._get_class_distribution(y_train)
         test_dist = self._get_class_distribution(y_test)
         
@@ -326,10 +326,10 @@ class DataSplitter:
             
             if drift > 0.1:
                 validation_results['recommendations'].append(
-                    f"Znaczący dryft dla klasy {class_label}: {drift:.3f}"
+                    f"Significant drift for class {class_label}: {drift:.3f}"
                 )
         
-        # Sprawdź dryft cech (dla DataFrame)
+        # Check feature drift (for DataFrame)
         if isinstance(X_train, pd.DataFrame) and isinstance(X_test, pd.DataFrame):
             for col in X_train.columns:
                 if X_train[col].dtype in ['int64', 'float64']:
@@ -342,21 +342,21 @@ class DataSplitter:
                         
                         if drift > 0.2:
                             validation_results['recommendations'].append(
-                                f"Znaczący dryft cechy {col}: {drift:.3f}"
+                                f"Significant feature drift for {col}: {drift:.3f}"
                             )
         
         return validation_results
 
 
 if __name__ == "__main__":
-    # Przykład użycia
+    # Usage example
     import pandas as pd
     from sklearn.datasets import make_classification
     
-    # Wygeneruj przykładowe dane
+    # Generate sample data
     X, y = make_classification(n_samples=1000, n_classes=3, n_features=10, random_state=42)
     
-    # Konwertuj na DataFrame
+    # Convert to DataFrame
     df = pd.DataFrame(X, columns=[f'feature_{i}' for i in range(X.shape[1])])
     df['target'] = y
     df['date'] = pd.date_range('2023-01-01', periods=len(df), freq='D')
@@ -364,22 +364,22 @@ if __name__ == "__main__":
     
     splitter = DataSplitter()
     
-    # Podstawowy podział
+    # Basic split
     X_train, X_test, y_train, y_test = splitter.basic_split(X, y)
-    print(f"Podstawowy podział: {X_train.shape[0]} treningowych, {X_test.shape[0]} testowych")
+    print(f"Basic split: {X_train.shape[0]} training, {X_test.shape[0]} test")
     
-    # Podział czasowy
+    # Temporal split
     train_df, test_df = splitter.temporal_split(df, 'date', 'target', [f'feature_{i}' for i in range(10)], validation_size=0)
-    print(f"Podział czasowy: {len(train_df)} treningowych, {len(test_df)} testowych")
+    print(f"Temporal split: {len(train_df)} training, {len(test_df)} test")
     
-    # Podział grupowy
+    # Group split
     train_df, test_df = splitter.group_based_split(df, 'group', 'target', [f'feature_{i}' for i in range(10)])
-    print(f"Podział grupowy: {len(train_df)} treningowych, {len(test_df)} testowych")
+    print(f"Group split: {len(train_df)} training, {len(test_df)} test")
     
-    # Walidacja jakości podziału
+    # Validate split quality
     validation = splitter.validate_split_quality(X_train, X_test, y_train, y_test)
-    print(f"\nWalidacja podziału: {len(validation['recommendations'])} rekomendacji")
+    print(f"\nSplit validation: {len(validation['recommendations'])} recommendations")
     
-    # Podsumowanie
+    # Summary
     summary = splitter.get_split_summary()
-    print(f"\nWykonano {len(summary)} typów podziałów")
+    print(f"\nPerformed {len(summary)} split types")

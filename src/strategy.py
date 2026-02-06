@@ -36,7 +36,7 @@ class StrategySelector:
         }
         
         if y is not None:
-            # Analiza jakości etykiet
+            # Label quality analysis
             unique_labels = len(np.unique(y))
             label_balance = self._calculate_label_balance(y)
             
@@ -50,7 +50,7 @@ class StrategySelector:
         return characteristics
     
     def _calculate_sparsity(self, X: Union[pd.DataFrame, np.ndarray]) -> float:
-        """Oblicza rzadkość danych"""
+        """Calculate data sparsity"""
         if hasattr(X, 'toarray'):  # Sparse matrix
             X_dense = X.toarray()
         else:
@@ -62,14 +62,14 @@ class StrategySelector:
         return zero_elements / total_elements
     
     def _calculate_label_balance(self, y: Union[pd.Series, np.ndarray]) -> float:
-        """Oblicza wynik balansu etykiet (0-1, gdzie 1 = idealnie zbalansowany)"""
+        """Calculate label balance score (0-1, where 1 = perfectly balanced)"""
         if isinstance(y, np.ndarray):
             y = pd.Series(y)
         
         value_counts = y.value_counts()
         normalized_counts = value_counts / value_counts.sum()
         
-        # Entropia jako miara balansu
+        # Entropy as balance measure
         entropy = -np.sum(normalized_counts * np.log2(normalized_counts + 1e-10))
         max_entropy = np.log2(len(value_counts))
         
@@ -80,7 +80,7 @@ class StrategySelector:
         X: Union[pd.DataFrame, np.ndarray],
         y: Union[pd.Series, np.ndarray]
     ) -> Dict[str, Any]:
-        """Ocenia wykonalność uczenia nadzorowanego"""
+        """Evaluate supervised learning feasibility"""
         
         characteristics = self.analyze_data_characteristics(X, y)
         label_quality = characteristics['label_quality']
@@ -88,36 +88,41 @@ class StrategySelector:
         feasibility_score = 0
         reasons = []
         
-        # Sprawdź liczbę próbek na klasę
+        # Check samples per class
         min_samples_per_class = min(pd.Series(y).value_counts())
         if min_samples_per_class >= 10:
             feasibility_score += 0.3
         else:
-            reasons.append(f"Za mało próbek na klasę (min: {min_samples_per_class})")
+            reasons.append(f"Too few samples per class (min: {min_samples_per_class})")
         
-        # Sprawdź balans klas
-        if label_quality['label_balance_score'] >= 0.7:
+        # Check class balance
+        balance_score = label_quality['label_balance_score']
+        logging.info(f"Label balance score: {balance_score:.3f}")
+        if balance_score >= 0.7:
             feasibility_score += 0.2
         else:
-            reasons.append("Klasa jest niezbalansowana")
+            reasons.append("Class is imbalanced")
         
-        # Sprawdź liczbę próbek
+        # Check sample count
         if characteristics['n_samples'] >= 100:
             feasibility_score += 0.2
         else:
-            reasons.append("Za mało próbek ogółem")
+            reasons.append("Too few samples overall")
         
-        # Sprawdź liczbę cech
+        # Check feature count
         if characteristics['n_features'] <= characteristics['n_samples'] / 10:
             feasibility_score += 0.2
         else:
-            reasons.append("Za dużo cech w stosunku do próbek")
+            reasons.append("Too many features compared to samples")
         
-        # Sprawdź jakość etykiet
+        # Check label quality
         if not label_quality['is_imbalanced']:
             feasibility_score += 0.1
         
         recommendation = "supervised" if feasibility_score >= 0.6 else "unsupervised"
+        
+        logging.info(f"Supervised feasibility score: {feasibility_score:.3f}")
+        logging.info(f"Recommendation: {recommendation}")
         
         return {
             'feasibility_score': feasibility_score,
@@ -131,18 +136,18 @@ class StrategySelector:
         X: Union[pd.DataFrame, np.ndarray],
         max_clusters: int = 10
     ) -> Dict[str, Any]:
-        """Wykonuje analizę klastrowania"""
+        """Perform clustering analysis"""
         
         results = {}
         
-        # Redukcja wymiarowości dla wizualizacji
+        # Dimensionality reduction for visualization
         if X.shape[1] > 50:
             pca = PCA(n_components=min(50, X.shape[1]), random_state=self.random_state)
             X_reduced = pca.fit_transform(X)
         else:
             X_reduced = X
         
-        # K-means clustering dla różnych liczby klastrów
+        # K-means clustering for different cluster counts
         k_range = range(2, min(max_clusters + 1, X.shape[0]))
         silhouette_scores = []
         
@@ -150,13 +155,13 @@ class StrategySelector:
             kmeans = KMeans(n_clusters=k, random_state=self.random_state, n_init=10)
             cluster_labels = kmeans.fit_predict(X_reduced)
             
-            if len(np.unique(cluster_labels)) > 1:  # Wymagane co najmniej 2 klastry
+            if len(np.unique(cluster_labels)) > 1:  # Require at least 2 clusters
                 silhouette_avg = silhouette_score(X_reduced, cluster_labels)
                 silhouette_scores.append(silhouette_avg)
             else:
                 silhouette_scores.append(0)
         
-        # Znajdź optymalną liczbę klastrów
+        # Find optimal number of clusters
         if silhouette_scores:
             optimal_k = k_range[np.argmax(silhouette_scores)]
             best_silhouette = max(silhouette_scores)
@@ -185,7 +190,7 @@ class StrategySelector:
         X: Union[pd.DataFrame, np.ndarray],
         contamination: float = 0.1
     ) -> Dict[str, Any]:
-        """Wykrywa anomalie w danych"""
+        """Detect anomalies in data"""
         
         # Isolation Forest
         iso_forest = IsolationForest(
@@ -213,9 +218,9 @@ class StrategySelector:
         y: Optional[Union[pd.Series, np.ndarray]] = None,
         domain_knowledge: Optional[Dict] = None
     ) -> Dict[str, Any]:
-        """Rekomenduje strategię uczenia maszynowego"""
+        """Recommend machine learning strategy"""
         
-        # Analiza charakterystyk danych
+        # Analyze data characteristics
         characteristics = self.analyze_data_characteristics(X, y)
         
         recommendation = {
@@ -227,52 +232,52 @@ class StrategySelector:
         }
         
         if y is not None:
-            # Mamy etykiety - oceniaj uczenie nadzorowane
+            # We have labels - evaluate supervised learning
             supervised_eval = self.evaluate_supervised_feasibility(X, y)
             
             if supervised_eval['feasibility_score'] >= 0.6:
                 recommendation['primary_strategy'] = 'supervised'
                 recommendation['confidence'] = supervised_eval['feasibility_score']
-                recommendation['reasoning'].append("Etykiety są dobrej jakości")
+                recommendation['reasoning'].append("Labels are of good quality")
                 
                 if supervised_eval['characteristics']['label_quality']['is_imbalanced']:
-                    recommendation['preprocessing_recommendations'].append("Rozważ balansowanie danych")
+                    recommendation['preprocessing_recommendations'].append("Consider data balancing")
             else:
                 recommendation['primary_strategy'] = 'unsupervised'
                 recommendation['confidence'] = 1 - supervised_eval['feasibility_score']
                 recommendation['reasoning'].extend(supervised_eval['reasons'])
                 recommendation['alternative_strategies'].append('semi_supervised')
         else:
-            # Brak etykiet - uczenie nienadzorowane
+            # No labels - unsupervised learning
             clustering_analysis = self.perform_clustering_analysis(X)
             anomaly_analysis = self.detect_anomalies(X)
             
             if clustering_analysis['clustering_feasible']:
                 recommendation['primary_strategy'] = 'clustering'
                 recommendation['confidence'] = clustering_analysis['best_silhouette_score']
-                recommendation['reasoning'].append(f"Dane wykazują strukturę klastrową (k={clustering_analysis['optimal_k']})")
+                recommendation['reasoning'].append(f"Data shows clustering structure (k={clustering_analysis['optimal_k']})")
             else:
                 recommendation['primary_strategy'] = 'anomaly_detection'
                 recommendation['confidence'] = 0.5
-                recommendation['reasoning'].append("Brak wyraźnej struktury klastrowej")
+                recommendation['reasoning'].append("No clear clustering structure")
             
             if anomaly_analysis['has_significant_anomalies']:
                 recommendation['alternative_strategies'].append('anomaly_detection')
         
-        # Dodaj rekomendacje preprocessingu
+        # Add preprocessing recommendations
         if characteristics['data_sparsity'] > 0.8:
-            recommendation['preprocessing_recommendations'].append("Dane są bardzo rzadkie - rozważ redukcję wymiarowości")
+            recommendation['preprocessing_recommendations'].append("Data is very sparse - consider dimensionality reduction")
         
         if characteristics['feature_variance'] < 0.01:
-            recommendation['preprocessing_recommendations'].append("Niska wariancja cech - rozważ selekcję cech")
+            recommendation['preprocessing_recommendations'].append("Low feature variance - consider feature selection")
         
-        # Uwzględnij wiedzę dziedzinową
+        # Consider domain knowledge
         if domain_knowledge:
             if domain_knowledge.get('requires_interpretability', False):
-                recommendation['reasoning'].append("Wymagana interpretowalność modelu")
+                recommendation['reasoning'].append("Model interpretability required")
             
             if domain_knowledge.get('known_classes', 0) > 0:
-                recommendation['reasoning'].append(f"Znana liczba klas: {domain_knowledge['known_classes']}")
+                recommendation['reasoning'].append(f"Known number of classes: {domain_knowledge['known_classes']}")
         
         return recommendation
     
@@ -282,35 +287,35 @@ class StrategySelector:
         y: Optional[Union[pd.Series, np.ndarray]] = None,
         domain_knowledge: Optional[Dict] = None
     ) -> str:
-        """Generuje raport rekomendacji strategii"""
+        """Generate strategy recommendation report"""
         
         recommendation = self.recommend_strategy(X, y, domain_knowledge)
         
         report = f"""
-# Raport Rekomendacji Strategii Uczenia Maszynowego
+# Machine Learning Strategy Recommendation Report
 
-## Analiza Danych
-- Liczba próbek: {X.shape[0]}
-- Liczba cech: {X.shape[1]}
-- Etykiety dostępne: {'Tak' if y is not None else 'Nie'}
+## Data Analysis
+- Number of samples: {X.shape[0]}
+- Number of features: {X.shape[1]}
+- Labels available: {'Yes' if y is not None else 'No'}
 
-## Rekomendowana Strategia
-**Główna strategia:** {recommendation['primary_strategy']}
-**Pewność rekomendacji:** {recommendation['confidence']:.2f}
+## Recommended Strategy
+**Primary strategy:** {recommendation['primary_strategy']}
+**Recommendation confidence:** {recommendation['confidence']:.2f}
 
-## Uzasadnienie
+## Justification
 """
         
         for reason in recommendation['reasoning']:
             report += f"- {reason}\n"
         
         if recommendation['alternative_strategies']:
-            report += "\n## Alternatywne Strategie\n"
+            report += "\n## Alternative Strategies\n"
             for alt in recommendation['alternative_strategies']:
                 report += f"- {alt}\n"
         
         if recommendation['preprocessing_recommendations']:
-            report += "\n## Rekomendacje Preprocessingu\n"
+            report += "\n## Preprocessing Recommendations\n"
             for prep in recommendation['preprocessing_recommendations']:
                 report += f"- {prep}\n"
         
@@ -318,11 +323,11 @@ class StrategySelector:
 
 
 if __name__ == "__main__":
-    # Przykład użycia
+    # Usage example
     from sklearn.datasets import make_classification, make_blobs
     import numpy as np
     
-    # Przykład 1: Dane nadzorowane
+    # Example 1: Supervised data
     X_supervised, y_supervised = make_classification(
         n_samples=1000,
         n_classes=3,
@@ -331,7 +336,7 @@ if __name__ == "__main__":
         random_state=42
     )
     
-    # Przykład 2: Dane nienadzorowane
+    # Example 2: Unsupervised data
     X_unsupervised, _ = make_blobs(
         n_samples=500,
         centers=4,
@@ -341,20 +346,20 @@ if __name__ == "__main__":
     
     strategy = StrategySelector()
     
-    # Analiza danych nadzorowanych
-    print("=== Analiza danych nadzorowanych ===")
+    # Supervised data analysis
+    print("=== Supervised Data Analysis ===")
     rec_supervised = strategy.recommend_strategy(X_supervised, y_supervised)
-    print(f"Rekomendacja: {rec_supervised['primary_strategy']}")
-    print(f"Pewność: {rec_supervised['confidence']:.2f}")
-    print(f"Uzasadnienie: {rec_supervised['reasoning']}")
+    print(f"Recommendation: {rec_supervised['primary_strategy']}")
+    print(f"Confidence: {rec_supervised['confidence']:.2f}")
+    print(f"Justification: {rec_supervised['reasoning']}")
     
-    # Analiza danych nienadzorowanych
-    print("\n=== Analiza danych nienadzorowanych ===")
+    # Unsupervised data analysis
+    print("\n=== Unsupervised Data Analysis ===")
     rec_unsupervised = strategy.recommend_strategy(X_unsupervised)
-    print(f"Rekomendacja: {rec_unsupervised['primary_strategy']}")
-    print(f"Pewność: {rec_unsupervised['confidence']:.2f}")
-    print(f"Uzasadnienie: {rec_unsupervised['reasoning']}")
+    print(f"Recommendation: {rec_unsupervised['primary_strategy']}")
+    print(f"Confidence: {rec_unsupervised['confidence']:.2f}")
+    print(f"Justification: {rec_unsupervised['reasoning']}")
     
-    # Generuj raport
+    # Generate report
     report = strategy.generate_strategy_report(X_supervised, y_supervised)
     print(report)

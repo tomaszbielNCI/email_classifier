@@ -29,7 +29,7 @@ class ModelTrainer:
         self.best_score = 0
         
     def get_available_models(self) -> Dict[str, Any]:
-        """Zwraca dostępne modele z domyślnymi parametrami"""
+        """Returns available models with default parameters"""
         
         models = {
             'random_forest': {
@@ -39,7 +39,7 @@ class ModelTrainer:
                     'random_state': self.random_state,
                     'n_jobs': -1
                 },
-                'description': 'Random Forest - ensemble drzew decyzyjnych'
+                'description': 'Random Forest - ensemble of decision trees'
             },
             'gradient_boosting': {
                 'model': GradientBoostingClassifier,
@@ -47,7 +47,7 @@ class ModelTrainer:
                     'n_estimators': 100,
                     'random_state': self.random_state
                 },
-                'description': 'Gradient Boosting - sekwencyjne drzewa'
+                'description': 'Gradient Boosting - sequential trees'
             },
             'logistic_regression': {
                 'model': LogisticRegression,
@@ -55,7 +55,7 @@ class ModelTrainer:
                     'random_state': self.random_state,
                     'max_iter': 1000
                 },
-                'description': 'Regresja logistyczna - model liniowy'
+                'description': 'Logistic Regression - linear model'
             },
             'svm': {
                 'model': SVC,
@@ -63,26 +63,26 @@ class ModelTrainer:
                     'random_state': self.random_state,
                     'probability': True
                 },
-                'description': 'Support Vector Machine - model wektorowy'
+                'description': 'Support Vector Machine - vector model'
             },
             'naive_bayes': {
                 'model': MultinomialNB,
                 'params': {},
-                'description': 'Naiwny Bayes - probabilistyczny model'
+                'description': 'Naive Bayes - probabilistic model'
             },
             'knn': {
                 'model': KNeighborsClassifier,
                 'params': {
                     'n_neighbors': 5
                 },
-                'description': 'K-Nearest Neighbors - model oparty na sąsiedztwie'
+                'description': 'K-Nearest Neighbors - neighborhood based model'
             },
             'decision_tree': {
                 'model': DecisionTreeClassifier,
                 'params': {
                     'random_state': self.random_state
                 },
-                'description': 'Drzewo decyzyjne - pojedyncze drzewo'
+                'description': 'Decision Tree - single tree'
             },
             'mlp': {
                 'model': MLPClassifier,
@@ -90,7 +90,7 @@ class ModelTrainer:
                     'random_state': self.random_state,
                     'max_iter': 1000
                 },
-                'description': 'Multi-layer Perceptron - sieć neuronowa'
+                'description': 'Multi-layer Perceptron - neural network'
             },
             'xgboost': {
                 'model': xgb.XGBClassifier,
@@ -98,7 +98,7 @@ class ModelTrainer:
                     'random_state': self.random_state,
                     'n_jobs': -1
                 },
-                'description': 'XGBoost - gradient boosting optymalizowany'
+                'description': 'XGBoost - optimized gradient boosting'
             },
             'lightgbm': {
                 'model': lgb.LGBMClassifier,
@@ -106,7 +106,7 @@ class ModelTrainer:
                     'random_state': self.random_state,
                     'n_jobs': -1
                 },
-                'description': 'LightGBM - lekki gradient boosting'
+                'description': 'LightGBM - lightweight gradient boosting'
             }
         }
         
@@ -121,31 +121,31 @@ class ModelTrainer:
         X_val: Optional[Union[pd.DataFrame, np.ndarray]] = None,
         y_val: Optional[Union[pd.Series, np.ndarray]] = None
     ) -> Dict[str, Any]:
-        """Trenuje pojedynczy model"""
+        """Train single model"""
         
         available_models = self.get_available_models()
         
         if model_name not in available_models:
-            raise ValueError(f"Model '{model_name}' nie jest dostępny. Dostępne modele: {list(available_models.keys())}")
+            raise ValueError(f"Model '{model_name}' is not available. Available models: {list(available_models.keys())}")
         
         model_info = available_models[model_name]
         
-        # Połącz parametry
+        # Combine parameters
         params = model_info['params'].copy()
         if model_params:
             params.update(model_params)
         
-        # Inicjalizuj model
+        # Initialize model
         model = model_info['model'](**params)
         
-        # Trenuj model
+        # Train model
         start_time = time.time()
         
         try:
             model.fit(X_train, y_train)
             training_time = time.time() - start_time
             
-            # Predykcje
+            # Predictions
             y_train_pred = model.predict(X_train)
             train_accuracy = accuracy_score(y_train, y_train_pred)
             
@@ -160,10 +160,10 @@ class ModelTrainer:
                     'val_confusion_matrix': confusion_matrix(y_val, y_val_pred)
                 }
             
-            # Zapisz model
+            # Save model
             self.models[model_name] = model
             
-            # Zapisz historię treningu
+            # Save training history
             training_info = {
                 'model': model,
                 'model_name': model_name,
@@ -200,7 +200,7 @@ class ModelTrainer:
         X_val: Optional[Union[pd.DataFrame, np.ndarray]] = None,
         y_val: Optional[Union[pd.Series, np.ndarray]] = None
     ) -> Dict[str, Dict[str, Any]]:
-        """Trenuje wiele modeli"""
+        """Train multiple models"""
         
         if model_names is None:
             model_names = ['random_forest', 'logistic_regression', 'svm', 'naive_bayes']
@@ -212,7 +212,7 @@ class ModelTrainer:
                 result = self.train_single_model(X_train, y_train, model_name, X_val=X_val, y_val=y_val)
                 results[model_name] = result
             except Exception as e:
-                logging.warning(f"Nie udało się wytrenować modelu {model_name}: {e}")
+                logging.warning(f"Failed to train model {model_name}: {e}")
                 results[model_name] = {'error': str(e)}
         
         return results
@@ -226,14 +226,14 @@ class ModelTrainer:
         cv_folds: int = 3,
         scoring: str = 'accuracy'
     ) -> Dict[str, Any]:
-        """Optymalizacja hiperparametrów"""
+        """Hyperparameter optimization"""
         
         from sklearn.model_selection import GridSearchCV
         
         available_models = self.get_available_models()
         
         if model_name not in available_models:
-            raise ValueError(f"Model '{model_name}' nie jest dostępny")
+            raise ValueError(f"Model '{model_name}' is not available")
         
         model_info = available_models[model_name]
         base_model = model_info['model'](**model_info['params'])
@@ -252,11 +252,11 @@ class ModelTrainer:
         grid_search.fit(X_train, y_train)
         tuning_time = time.time() - start_time
         
-        # Zapisz najlepszy model
+        # Save best model
         best_model_name = f"{model_name}_tuned"
         self.models[best_model_name] = grid_search.best_estimator_
         
-        # Zapisz historię
+        # Save history
         tuning_info = {
             'model': grid_search.best_estimator_,
             'model_name': best_model_name,
@@ -269,17 +269,17 @@ class ModelTrainer:
         
         self.training_history[best_model_name] = tuning_info
         
-        # Zaktualizuj najlepszy model
+        # Update best model
         if grid_search.best_score_ > self.best_score:
             self.best_score = grid_search.best_score_
             self.best_model = grid_search.best_estimator_
         
-        logging.info(f"Hiperparametry zoptymalizowane dla {model_name}. Najlepszy score: {grid_search.best_score_:.4f}")
+        logging.info(f"Hyperparameters optimized for {model_name}. Best score: {grid_search.best_score_:.4f}")
         
         return tuning_info
     
     def get_model_comparison(self) -> pd.DataFrame:
-        """Zwraca porównanie modeli"""
+        """Return model comparison"""
         
         comparison_data = []
         
@@ -295,7 +295,7 @@ class ModelTrainer:
                 'params': str(history.get('params', {}))
             }
             
-            # Dodaj F1-score jeśli dostępny
+            # Add F1-score if available
             if 'train_classification_report' in history:
                 train_report = history['train_classification_report']
                 if 'weighted avg' in train_report:
@@ -316,20 +316,20 @@ class ModelTrainer:
         return comparison_df
     
     def save_model(self, model_name: str, filepath: str) -> None:
-        """Zapisuje model do pliku"""
+        """Save model to file"""
         
         if model_name not in self.models:
-            raise ValueError(f"Model '{model_name}' nie został wytrenowany")
+            raise ValueError(f"Model '{model_name}' has not been trained")
         
         joblib.dump(self.models[model_name], filepath)
-        logging.info(f"Model {model_name} zapisany w {filepath}")
+        logging.info(f"Model {model_name} saved to {filepath}")
     
     def load_model(self, filepath: str, model_name: str) -> None:
-        """Ładuje model z pliku"""
+        """Load model from file"""
         
         model = joblib.load(filepath)
         self.models[model_name] = model
-        logging.info(f"Model {model_name} załadowany z {filepath}")
+        logging.info(f"Model {model_name} loaded from {filepath}")
     
     def predict(
         self,
@@ -337,15 +337,15 @@ class ModelTrainer:
         model_name: Optional[str] = None,
         return_proba: bool = False
     ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
-        """Wykonuje predykcje"""
+        """Make predictions"""
         
         if model_name is None:
             if self.best_model is None:
-                raise ValueError("Brak wytrenowanego modelu")
+                raise ValueError("No trained model available")
             model = self.best_model
         else:
             if model_name not in self.models:
-                raise ValueError(f"Model '{model_name}' nie został wytrenowany")
+                raise ValueError(f"Model '{model_name}' has not been trained")
             model = self.models[model_name]
         
         predictions = model.predict(X)
@@ -355,16 +355,16 @@ class ModelTrainer:
                 probabilities = model.predict_proba(X)
                 return predictions, probabilities
             else:
-                logging.warning("Model nie wspiera predict_proba")
+                logging.warning("Model does not support predict_proba")
                 return predictions, None
         
         return predictions
     
     def get_feature_importance(self, model_name: str) -> Optional[np.ndarray]:
-        """Zwraca ważność cech dla modelu"""
+        """Return feature importance for model"""
         
         if model_name not in self.models:
-            raise ValueError(f"Model '{model_name}' nie został wytrenowany")
+            raise ValueError(f"Model '{model_name}' has not been trained")
         
         model = self.models[model_name]
         
@@ -373,39 +373,39 @@ class ModelTrainer:
         elif hasattr(model, 'coef_'):
             return np.abs(model.coef_).flatten()
         else:
-            logging.warning(f"Model {model_name} nie wspiera ważności cech")
+            logging.warning(f"Model {model_name} does not support feature importance")
             return None
 
 
 if __name__ == "__main__":
-    # Przykład użycia
+    # Usage example
     from sklearn.datasets import make_classification
     from sklearn.model_selection import train_test_split
     
-    # Wygeneruj dane
+    # Generate data
     X, y = make_classification(n_samples=1000, n_classes=3, n_features=10, random_state=42)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
     trainer = ModelTrainer()
     
-    # Trenuj wiele modeli
+    # Train multiple models
     models_to_train = ['random_forest', 'logistic_regression', 'naive_bayes']
     results = trainer.train_multiple_models(X_train, y_train, models_to_train, X_test, y_test)
     
-    # Porównanie modeli
+    # Model comparison
     comparison = trainer.get_model_comparison()
-    print("Porównanie modeli:")
+    print("Model comparison:")
     print(comparison[['model_name', 'train_accuracy', 'val_accuracy', 'training_time']])
     
-    # Hiperparametryzacja
+    # Hyperparameter tuning
     param_grid = {
         'n_estimators': [50, 100, 200],
         'max_depth': [None, 10, 20]
     }
     
     tuning_result = trainer.hyperparameter_tuning(X_train, y_train, 'random_forest', param_grid)
-    print(f"\nNajlepsze parametry: {tuning_result['best_params']}")
+    print(f"\nBest parameters: {tuning_result['best_params']}")
     
-    # Predykcje
+    # Predictions
     predictions = trainer.predict(X_test)
-    print(f"\nDokładność na zbiorze testowym: {accuracy_score(y_test, predictions):.4f}")
+    print(f"\nTest set accuracy: {accuracy_score(y_test, predictions):.4f}")

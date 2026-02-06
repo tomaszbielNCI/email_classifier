@@ -143,9 +143,9 @@ class DataStructurer:
         label_column: str, 
         min_samples: int = 10
     ) -> pd.DataFrame:
-        """Filtruje rzadkie klasy"""
+        """Filter rare classes"""
         if label_column not in df.columns:
-            raise ValueError(f"Kolumna '{label_column}' nie istnieje")
+            raise ValueError(f"Column '{label_column}' does not exist")
         
         value_counts = df[label_column].value_counts()
         common_classes = value_counts[value_counts >= min_samples].index
@@ -154,8 +154,8 @@ class DataStructurer:
         filtered_df = df[df[label_column].isin(common_classes)]
         final_count = len(filtered_df)
         
-        logging.info(f"Usunięto {initial_count - final_count} wierszy z rzadkimi klasami")
-        logging.info(f"Pozostało {len(common_classes)} klas z min {min_samples} próbek")
+        logging.info(f"Removed {initial_count - final_count} rows with rare classes")
+        logging.info(f"Remaining {len(common_classes)} classes with min {min_samples} samples")
         
         return filtered_df
     
@@ -165,11 +165,11 @@ class DataStructurer:
         label_column: str,
         group_size: int = 50
     ) -> pd.DataFrame:
-        """Tworzy zgrupowane dane dla stratyfikacji"""
+        """Create grouped data for stratification"""
         if label_column not in df.columns:
-            raise ValueError(f"Kolumna '{label_column}' nie istnieje")
+            raise ValueError(f"Column '{label_column}' does not exist")
         
-        # Dodaj grupę dla każdej klasy
+        # Add group for each class
         df_with_groups = df.copy()
         df_with_groups['strata_group'] = -1
         
@@ -178,18 +178,18 @@ class DataStructurer:
             class_mask = df[label_column] == class_label
             class_indices = df[class_mask].index
             
-            # Podziel na grupy
+            # Split into groups
             for i in range(0, len(class_indices), group_size):
                 group_indices = class_indices[i:i+group_size]
                 df_with_groups.loc[group_indices, 'strata_group'] = current_group
                 current_group += 1
         
-        logging.info(f"Utworzono {current_group} grup stratyfikacyjnych")
+        logging.info(f"Created {current_group} stratification groups")
         
         return df_with_groups
     
     def get_data_summary(self, df: pd.DataFrame, label_columns: List[str]) -> Dict[str, Any]:
-        """Zwraca podsumowanie struktury danych"""
+        """Returns data structure summary"""
         summary = {
             'total_samples': len(df),
             'features': [col for col in df.columns if col not in label_columns],
@@ -203,10 +203,10 @@ class DataStructurer:
 
 
 if __name__ == "__main__":
-    # Przykład użycia
+    # Usage example
     import pandas as pd
     
-    # Przykładowe dane
+    # Sample data
     data = {
         'text': ['problem with app', 'login issue', 'payment error', 'bug report', 'feature request'],
         'primary_type': ['technical', 'technical', 'billing', 'technical', 'feature'],
@@ -217,17 +217,17 @@ if __name__ == "__main__":
     
     structurer = DataStructurer()
     
-    # Analiza dystrybucji
+    # Distribution analysis
     distributions = structurer.analyze_class_distribution(df, ['primary_type', 'secondary_type', 'priority'])
-    print("Dystrybucja klas:")
+    print("Class distribution:")
     for col, dist in distributions.items():
-        print(f"{col}: {dist['num_classes']} klas")
+        print(f"{col}: {dist['num_classes']} classes")
     
-    # Kodowanie etykiet
+    # Label encoding
     df_encoded = structurer.encode_labels(df, ['primary_type', 'secondary_type', 'priority'])
-    print("\nZakodowane dane:")
+    print("\nEncoded data:")
     print(df_encoded[['primary_type_encoded', 'secondary_type_encoded', 'priority_encoded']].head())
     
-    # Podsumowanie
+    # Summary
     summary = structurer.get_data_summary(df, ['primary_type', 'secondary_type', 'priority'])
-    print(f"\nPodsumowanie: {summary['total_samples']} próbek")
+    print(f"\nSummary: {summary['total_samples']} samples")

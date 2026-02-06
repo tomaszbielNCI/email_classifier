@@ -468,9 +468,9 @@ if __name__ == "__main__":
         # Get absolute path to data file
         data_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "AppGallery.csv")
         results = pipeline.run_full_pipeline(data_path)
-        print("Pipeline zakończony pomyślnie!")
-        print(f"Najlepszy model: {results['modeling_results']['best_model']}")
-        print(f"Najlepszy score: {results['modeling_results']['best_score']:.4f}")
+        print("Pipeline completed successfully!")
+        print(f"Best model: {results['modeling_results']['best_model']}")
+        print(f"Best score: {results['modeling_results']['best_score']:.4f}")
         
     except FileNotFoundError:
         print("File AppGallery.csv not found. Run pipeline with appropriate data file.")

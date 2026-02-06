@@ -210,7 +210,7 @@ class Sampler:
         target_samples_per_class: Optional[int] = None,
         method: str = 'oversample'
     ) -> Tuple[Union[pd.DataFrame, np.ndarray], Union[pd.Series, np.ndarray]]:
-        """Niestandardowe zbalansowane próbkowanie"""
+        """Custom balanced sampling"""
         
         if isinstance(X, pd.DataFrame):
             X_df = X.copy()
@@ -219,7 +219,7 @@ class Sampler:
             X_df = pd.DataFrame(X)
             X_df['target'] = y
         
-        # Oblicz docelową liczbę próbek na klasę
+        # Calculate target number of samples per class
         class_counts = X_df['target'].value_counts()
         
         if target_samples_per_class is None:
@@ -334,11 +334,11 @@ class Sampler:
 
 
 if __name__ == "__main__":
-    # Przykład użycia
+    # Usage example
     import numpy as np
     from sklearn.datasets import make_classification
     
-    # Wygeneruj niezbalansowane dane
+    # Generate imbalanced data
     X, y = make_classification(
         n_samples=1000,
         n_classes=3,
@@ -348,19 +348,19 @@ if __name__ == "__main__":
     
     sampler = Sampler()
     
-    # Analiza niezbalansowania
+    # Imbalance analysis
     analysis = sampler.analyze_imbalance(y)
-    print(f"Analiza początkowa: {analysis}")
+    print(f"Initial analysis: {analysis}")
     
-    # Różne metody próbkowania
+    # Different sampling methods
     X_over, y_over = sampler.smote_oversample(X, y)
     X_under, y_under = sampler.random_undersample(X, y)
     
     print(f"SMOTE: {len(X)} -> {len(X_over)}")
     print(f"Random undersample: {len(X)} -> {len(X_under)}")
     
-    # Porównanie metod
+    # Method comparison
     comparison = sampler.compare_sampling_methods(X, y)
-    print("\nPorównanie metod:")
+    print("\nMethod comparison:")
     for method, result in comparison.items():
-        print(f"{method}: {result['samples']} próbek, ratio={result['imbalance_ratio']:.2f}")
+        print(f"{method}: {result['samples']} samples, ratio={result['imbalance_ratio']:.2f}")
