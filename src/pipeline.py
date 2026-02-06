@@ -193,16 +193,22 @@ class EmailClassificationPipeline:
         return df
     
     def _step_translation(self, text_columns: List[str]) -> pd.DataFrame:
-        """Krok 2: Tłumaczenie"""
-        logging.info("Krok 2: Tłumaczenie tekstów")
+        """Step 2: Translation"""
+        logging.info("Step 2: Translating texts")
         
         self.translator = Translator(self.config["translation"]["model_name"])
         
-        for col in text_columns:
-            if col in self.data.columns:
-                self.data = self.translator.translate_dataframe_column(
-                    self.data, col, f"{col}_en"
-                )
+        # Note: We can only translate a limited number of words, 
+        # so we are only translating ticket summary and not interaction content
+        summary_col = text_columns[0] if len(text_columns) > 0 else "Ticket Summary"
+        
+        if summary_col in self.data.columns:
+            logging.info(f"Translating only '{summary_col}' due to API limitations")
+            self.data = self.translator.translate_dataframe_column(
+                self.data, summary_col, f"{summary_col}_en"
+            )
+        else:
+            logging.warning(f"Summary column '{summary_col}' not found")
         
         return self.data
     

@@ -1,6 +1,6 @@
 import stanza
 from stanza.pipeline.core import DownloadMethod
-from transformers import M2M100ForConditionalGeneration, M2M100Tokenizer
+from transformers import pipeline, MarianMTModel, MarianTokenizer
 from typing import List, Optional
 import logging
 
@@ -16,6 +16,11 @@ class Translator:
         self.tokenizer = None
         self.nlp_stanza = None
         self._initialized = False
+        self._translation_cache = {}  # Cache for translations
+        
+        # Use smaller model for faster translation
+        if model_name == "facebook/m2m100_418M":
+            self.model_name = "Helsinki-NLP/opus-mt-mul-en"  # Much smaller and faster
         
     def initialize(self) -> None:
         """Initialize translation models"""
@@ -25,9 +30,9 @@ class Translator:
         try:
             logging.info("Initializing translation models...")
             
-            # M2M100 model and tokenizer
-            self.model = M2M100ForConditionalGeneration.from_pretrained(self.model_name)
-            self.tokenizer = M2M100Tokenizer.from_pretrained(self.model_name)
+            # MarianMT model and tokenizer (much faster)
+            self.model = MarianMTModel.from_pretrained(self.model_name)
+            self.tokenizer = MarianTokenizer.from_pretrained(self.model_name)
             
             # Stanza for language detection
             self.nlp_stanza = stanza.Pipeline(
@@ -60,30 +65,35 @@ class Translator:
             
         if text == "" or text is None:
             return text
+        
+        # Check cache first
+        if text in self._translation_cache:
+            return self._translation_cache[text]
             
         try:
+            # Limit text length to avoid very long processing
+            if len(text) > 500:
+                text = text[:500] + "..."
+                logging.warning(f"Text truncated to 500 characters for translation")
+            
             # Language detection
             doc = self.nlp_stanza(text)
             detected_lang = doc.lang
             
             if detected_lang == "en":
+                self._translation_cache[text] = text
                 return text
             
             # Map language code
             source_lang = self._map_language_code(detected_lang)
             
             # Translation
-            self.tokenizer.src_lang = source_lang
-            encoded_text = self.tokenizer(text, return_tensors="pt")
-            generated_tokens = self.model.generate(
-                **encoded_text, 
-                forced_bos_token_id=self.tokenizer.get_lang_id("en")
-            )
-            translated_text = self.tokenizer.batch_decode(
-                generated_tokens, 
-                skip_special_tokens=True
-            )[0]
+            encoded_text = self.tokenizer(text, return_tensors="pt", padding=True, truncation=True)
+            generated_tokens = self.model.generate(**encoded_text)
+            translated_text = self.tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)[0]
             
+            # Cache the result
+            self._translation_cache[text] = translated_text
             return translated_text
             
         except Exception as e:
@@ -96,19 +106,24 @@ class Translator:
             self.initialize()
             
         translated_texts = []
+        unique_texts = list(set(texts))  # Get unique texts
+        translation_map = {}
         
-        for i, text in enumerate(texts):
-            if i % batch_size == 0:
-                logging.info(f"Translated {i}/{len(texts)} texts")
+        # First, translate unique texts only
+        logging.info(f"Translating {len(unique_texts)} unique texts (from {len(texts)} total)")
+        
+        for i, text in enumerate(unique_texts):
+            if i % 5 == 0:  # Update progress more frequently
+                logging.info(f"Progress: {i}/{len(unique_texts)} unique texts translated")
             
             translated = self.translate_text(text)
-            translated_texts.append(translated)
-            
-            # Debug info for first few texts
-            if i < 5 and text != translated:
-                logging.info(f"Original: {text}")
-                logging.info(f"Translation: {translated}")
+            translation_map[text] = translated
         
+        # Now map all original texts
+        for text in texts:
+            translated_texts.append(translation_map.get(text, text))
+        
+        logging.info(f"Translation completed. Cache size: {len(self._translation_cache)}")
         return translated_texts
     
     def translate_dataframe_column(
