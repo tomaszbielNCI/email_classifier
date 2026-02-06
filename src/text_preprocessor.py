@@ -6,14 +6,14 @@ import logging
 
 class TextPreprocessor:
     """
-    Krok 4: Regex, usuwanie szumu (stop-words)
+    Step 4: Regex, noise removal (stop-words)
     """
     
     def __init__(self):
         self.noise_patterns = self._initialize_noise_patterns()
         
     def _initialize_noise_patterns(self) -> Dict[str, List[str]]:
-        """Inicjalizacja wzorców szumu"""
+        """Initialize noise patterns"""
         return {
             'email_headers': [
                 "(from :)|(subject :)|(sent :)|(r\s*:)|(re\s*:)"

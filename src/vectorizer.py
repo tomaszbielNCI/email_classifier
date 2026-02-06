@@ -5,18 +5,18 @@ from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.decomposition import TruncatedSVD
 import logging
 
-# Importy dla embeddings (opcjonalne)
+# Imports for embeddings (optional)
 try:
     from sentence_transformers import SentenceTransformer
     SENTENCE_TRANSFORMERS_AVAILABLE = True
 except ImportError:
     SENTENCE_TRANSFORMERS_AVAILABLE = False
-    logging.warning("sentence-transformers nie dostępne. Opcja embeddings będzie niedostępna.")
+    logging.warning("sentence-transformers not available. Embeddings option will be unavailable.")
 
 
 class Vectorizer:
     """
-    Krok 6: Reprezentacja numeryczna (TF-IDF, Embeddings)
+    Step 6: Numerical representation (TF-IDF, Embeddings)
     """
     
     def __init__(self):

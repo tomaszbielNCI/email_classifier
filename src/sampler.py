@@ -10,7 +10,7 @@ import logging
 
 class Sampler:
     """
-    Krok 7: Balancing danych (Oversampling/Undersampling)
+    Step 7: Data balancing (Oversampling/Undersampling)
     """
     
     def __init__(self, random_state: int = 42):
@@ -18,7 +18,7 @@ class Sampler:
         self.sampling_methods = {}
         
     def analyze_imbalance(self, y: Union[pd.Series, np.ndarray]) -> Dict[str, Any]:
-        """Analizuje niezbalansowanie klas"""
+        """Analyze class imbalance"""
         
         if isinstance(y, np.ndarray):
             y = pd.Series(y)
@@ -26,12 +26,12 @@ class Sampler:
         value_counts = y.value_counts()
         total_samples = len(y)
         
-        # Oblicz metryki niezbalansowania
+        # Calculate imbalance metrics
         imbalance_ratio = value_counts.max() / value_counts.min()
         minority_class = value_counts.idxmin()
         majority_class = value_counts.idxmax()
         
-        # Procenty
+        # Percentages
         percentages = (value_counts / total_samples * 100).round(2)
         
         analysis = {

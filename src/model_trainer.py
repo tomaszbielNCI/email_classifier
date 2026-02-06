@@ -18,7 +18,7 @@ import time
 
 class ModelTrainer:
     """
-    Kroki 10 & 11: Model SOTA, Trening i Ewaluacja
+    Steps 10 & 11: SOTA Model, Training and Evaluation
     """
     
     def __init__(self, random_state: int = 42):

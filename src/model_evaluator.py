@@ -14,7 +14,7 @@ from sklearn.preprocessing import label_binarize
 
 class ModelEvaluator:
     """
-    Ewaluacja modeli klasyfikacji
+    Classification model evaluation
     """
     
     def __init__(self):

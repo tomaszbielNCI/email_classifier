@@ -12,7 +12,7 @@ import logging
 
 class StrategySelector:
     """
-    Krok 8: Decyzja (Supervised vs Unsupervised)
+    Step 8: Decision (Supervised vs Unsupervised)
     """
     
     def __init__(self, random_state: int = 42):
@@ -24,7 +24,7 @@ class StrategySelector:
         X: Union[pd.DataFrame, np.ndarray],
         y: Optional[Union[pd.Series, np.ndarray]] = None
     ) -> Dict[str, Any]:
-        """Analizuje charakterystyki danych"""
+        """Analyze data characteristics"""
         
         characteristics = {
             'n_samples': X.shape[0],

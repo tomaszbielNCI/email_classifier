@@ -7,7 +7,7 @@ import logging
 
 class DataStructurer:
     """
-    Krok 5: Obsługa danych multi-level / multi-class
+    Step 5: Handling multi-level / multi-class data
     """
     
     def __init__(self):
@@ -15,7 +15,7 @@ class DataStructurer:
         self.class_mappings = {}
         
     def analyze_class_distribution(self, df: pd.DataFrame, target_columns: List[str]) -> Dict[str, Dict]:
-        """Analizuje dystrybucję klas dla wielu kolumn docelowych"""
+        """Analyze class distribution for multiple target columns"""
         distributions = {}
         
         for col in target_columns:
