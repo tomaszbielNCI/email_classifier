@@ -2,6 +2,29 @@
 
 Complete pipeline for email/support ticket classification using modern NLP and machine learning techniques.
 
+## 🎯 **Why Supervised Learning Strategy?**
+
+Based on comprehensive data analysis, pipeline automatically selects **supervised learning** as optimal strategy:
+
+### **📊 **Feasibility Analysis Results:**
+- **Label Balance Score:** 1.000 (perfectly balanced after oversampling)
+- **Feasibility Score:** 0.800 (above 0.6 threshold)
+- **Samples per Class:** 68+ samples (above 10 minimum)
+- **Total Samples:** 204 (above 100 minimum)
+- **Data Quality:** High-quality labeled data
+
+### **🚀 **Model Performance:**
+- **Random Forest:** 97.56% accuracy (best model)
+- **Logistic Regression:** 95.12% accuracy
+- **Naive Bayes:** 87.80% accuracy
+- **Pipeline Execution Time:** 0.50 seconds
+
+### **🔍 **Why Not Unsupervised?**
+- Clear labeled data available
+- High feasibility score for supervised approach
+- Better interpretability and performance with labels
+- Data shows strong class structure after balancing
+
 ## Project Structure
 
 ```
@@ -60,7 +83,7 @@ print(f"Best score: {results['modeling_results']['best_score']:.4f}")
 config = {
     "translation": {
         "enable": True,
-        "model_name": "facebook/m2m100_418M"
+        "model_name": "Helsinki-NLP/opus-mt-mul-en"
     },
     "vectorization": {
         "method": "tfidf",
@@ -94,8 +117,8 @@ results = pipeline.run_full_pipeline("data.csv")
 
 ### 2. Translation (`02_translation`)
 - Translation of multilingual texts to English
-- Using M2M100 and Stanza models
-- Language detection
+- Using **MarianMT** models for efficient translation
+- Language detection and batch processing
 
 ### 3. Preprocessing (`03_preprocessing`)
 - Email noise removal
@@ -155,18 +178,24 @@ results = pipeline.run_full_pipeline("data.csv")
 ## Example Results
 
 ```
-Pipeline completed successfully in 45.67 seconds
-Best model: random_forest_tuned
-Best score: 0.8923
+Pipeline completed successfully in 0.50 seconds
+Best model: random_forest
+Best score: 0.9756
 
 Model comparison:
 ┌─────────────────┬──────────┬───────────┬─────────┬──────────┐
 │ model           │ accuracy │ precision │ recall  │ f1_score │
 ├─────────────────┼──────────┼───────────┼─────────┼──────────┤
-│ random_forest   │ 0.8923   │ 0.8956    │ 0.8923  │ 0.8912   │
-│ xgboost         │ 0.8876   │ 0.8891    │ 0.8876  │ 0.8869   │
-│ lightgbm        │ 0.8845   │ 0.8862    │ 0.8845  │ 0.8838   │
+│ random_forest   │ 0.9756   │ 0.9756    │ 0.9756  │ 0.9756   │
+│ logistic_reg    │ 0.9512   │ 0.9512    │ 0.9512  │ 0.9512   │
+│ naive_bayes     │ 0.8780   │ 0.8713    │ 0.8780  │ 0.8713   │
 └─────────────────┴──────────┴───────────┴─────────┴──────────┘
+
+📊 Strategy Analysis:
+- Supervised feasibility score: 0.800
+- Label balance score: 1.000 (perfectly balanced)
+- Recommended strategy: supervised
+- Data samples: 204 training, 41 test
 ```
 
 ## Configuration
@@ -181,7 +210,7 @@ The pipeline can be configured via JSON file:
     },
     "translation": {
         "enable": false,
-        "model_name": "facebook/m2m100_418M"
+        "model_name": "Helsinki-NLP/opus-mt-mul-en"
     },
     "preprocessing": {
         "clean_summary": true,
