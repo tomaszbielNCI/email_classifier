@@ -207,7 +207,75 @@ class ModelExecutor:
         
         logging.info(f"Execution report saved to {filepath}")
     
-    def save_with_timestamp(self, base_path: str = "results") -> Tuple[str, str]:
+    def save_text_report(self, filepath: str) -> None:
+        """Save execution report as readable text file"""
+        report = self.generate_execution_report()
+        
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write("=" * 80 + "\n")
+            f.write(" MODEL EXECUTION REPORT\n")
+            f.write("=" * 80 + "\n\n")
+            
+            # Execution Summary
+            summary = report['execution_summary']
+            winner = summary['winning_model']
+            
+            f.write(" EXECUTION SUMMARY\n")
+            f.write("-" * 40 + "\n")
+            f.write(f"Total Models Tested: {summary['total_models_tested']}\n")
+            f.write(f"Total Execution Time: {summary['total_execution_time']:.4f}s\n")
+            f.write(f"Winning Model: {winner['name']}\n")
+            f.write(f"Winning Accuracy: {winner['accuracy']:.4f}\n")
+            f.write(f"Winning Training Time: {winner['training_time']:.4f}s\n")
+            f.write(f"Description: {winner['description']}\n\n")
+            
+            # Model Rankings
+            f.write(" MODEL RANKINGS\n")
+            f.write("-" * 40 + "\n")
+            f.write(f"{'Rank':<4} {'Model':<18} {'Accuracy':<10} {'F1-Score':<10} {'Time (s)':<10}\n")
+            f.write("-" * 40 + "\n")
+            
+            for i, model in enumerate(report['model_rankings'], 1):
+                rank_mark = f"{i}."
+                f.write(f"{rank_mark:<4} {model['model_name']:<18} {model['val_accuracy']:<10.4f} "
+                       f"{model['val_f1']:<10.4f} {model['training_time']:<10.4f}\n")
+            
+            f.write("\n")
+            
+            # Feature Analysis
+            if report['feature_analysis']['has_feature_importance']:
+                f.write(" FEATURE IMPORTANCE\n")
+                f.write("-" * 40 + "\n")
+                f.write(f"Top 5 Features: {report['feature_analysis']['top_features']}\n\n")
+            
+            # Recommendations
+            f.write(" RECOMMENDATIONS\n")
+            f.write("-" * 40 + "\n")
+            for i, rec in enumerate(report['recommendations'], 1):
+                f.write(f"{i}. {rec}\n")
+            
+            f.write("\n")
+            
+            # Detailed Model Info
+            f.write(" DETAILED MODEL INFORMATION\n")
+            f.write("=" * 80 + "\n\n")
+            
+            for model in report['model_rankings']:
+                f.write(f"🔹 {model['model_name'].upper()}\n")
+                f.write(f"   Training Accuracy: {model['train_accuracy']:.4f}\n")
+                f.write(f"   Validation Accuracy: {model['val_accuracy']:.4f}\n")
+                f.write(f"   Training F1-Score: {model['train_f1']:.4f}\n")
+                f.write(f"   Validation F1-Score: {model['val_f1']:.4f}\n")
+                f.write(f"   Training Time: {model['training_time']:.4f}s\n")
+                f.write(f"   Parameters: {model['params']}\n\n")
+            
+            f.write("=" * 80 + "\n")
+            f.write(f"Report generated: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write("=" * 80 + "\n")
+        
+        logging.info(f"Text report saved to {filepath}")
+    
+    def save_with_timestamp(self, base_path: str = "results") -> Tuple[str, str, str]:
         """Save report and model with unique timestamp"""
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         
@@ -217,13 +285,15 @@ class ModelExecutor:
         
         # Generate unique filenames
         report_path = results_dir / f"execution_report_{timestamp}.json"
+        text_report_path = results_dir / f"execution_report_{timestamp}.txt"
         model_path = results_dir / f"winning_model_{timestamp}.pkl"
         
         # Save files
         self.save_execution_report(str(report_path))
+        self.save_text_report(str(text_report_path))
         self.save_winning_model(str(model_path))
         
-        return str(report_path), str(model_path)
+        return str(report_path), str(text_report_path), str(model_path)
     
     def save_winning_model(self, filepath: str) -> None:
         if self.winning_model is None:
@@ -312,25 +382,26 @@ if __name__ == "__main__":
     executor = ModelExecutor()
     
     # Execute model comparison
-    print("🚀 Starting model execution...")
+    print(" Starting model execution...")
     results = executor.execute_winning_model(X_train, y_train, X_test, y_test)
     
     # Display results
-    print(f"\n🏆 Winning Model: {results['winning_model']['name']}")
-    print(f"📊 Accuracy: {results['winning_model']['accuracy']:.4f}")
-    print(f"⏱️ Training Time: {results['winning_model']['training_time']:.4f}s")
-    print(f"🔍 Description: {results['winning_model']['description']}")
+    print(f"\n Winning Model: {results['winning_model']['name']}")
+    print(f" Accuracy: {results['winning_model']['accuracy']:.4f}")
+    print(f"⏱ Training Time: {results['winning_model']['training_time']:.4f}s")
+    print(f" Description: {results['winning_model']['description']}")
     
     # Generate report
     report = executor.generate_execution_report()
-    print(f"\n📋 Execution Report:")
+    print(f"\n Execution Report:")
     print(f"Total Models Tested: {report['execution_summary']['total_models_tested']}")
     print(f"Recommendations: {', '.join(report['recommendations'])}")
     
     # Save report and model with timestamp
-    report_path, model_path = executor.save_with_timestamp()
-    print(f"\n💾 Report saved to: {report_path}")
-    print(f"💾 Model saved to: {model_path}")
+    report_path, text_report_path, model_path = executor.save_with_timestamp()
+    print(f"\n JSON Report saved to: {report_path}")
+    print(f" Text Report saved to: {text_report_path}")
+    print(f" Model saved to: {model_path}")
     
     # Test predictions
     print(f"\n🔮 Making predictions...")
