@@ -11,7 +11,7 @@ transformers>=4.20.0
 torch>=1.12.0
 sentence-transformers>=2.2.0
 
-# ML models
+# ML models and algorithms
 xgboost>=1.6.0
 lightgbm>=3.3.0
 catboost>=1.0.0
@@ -30,7 +30,21 @@ joblib>=1.1.0
 tqdm>=4.64.0
 pyyaml>=6.0
 
-# Development
+# Development and testing
 pytest>=6.2.0
 black>=21.0.0
 coverage>=6.0.0
+
+# Extended model library dependencies
+# (Included in scikit-learn >=1.1.0):
+# - HistGradientBoostingClassifier
+# - SGDClassifier  
+# - VotingClassifier
+# - RandomTreesEmbedding
+# - All ensemble methods (AdaBoost, ExtraTrees, Bagging)
+# - Linear models (LogisticRegression, LinearSVC, RidgeClassifier)
+# - Probabilistic models (GaussianNB, BernoulliNB)
+# - Tree models (DecisionTree)
+# - Neural networks (MLPClassifier)
+# - Discriminant analysis (LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis)
+# - Instance-based (KNeighborsClassifier)
