@@ -615,9 +615,10 @@ kubectl apply -f k8s/
 ## 📚 **Documentation**
 
 - **[Architecture Diagrams](docs/diagrams/)** - Visual system overview
-- **[Design Patterns](docs/architecture_description.md)** - Pattern implementation details
-- **[API Documentation](http://localhost:8000/docs)** - Interactive API docs
-- **[Assignment Report](docs/CA_report.docx)** - Academic submission
+- **[Design Patterns](docs/design_patterns.md)** - Pattern implementation details
+- **[Complete Architecture Analysis](docs/complete_architecture_analysis.md)** - Technical documentation
+- **[Extended Models Status](docs/extended_models_status.md)** - Model implementation details
+- **[Assignment Report](docs/CA EEA_2026.pdf)** - Academic submission
 
 ## 🤝 **Contributing**
 
