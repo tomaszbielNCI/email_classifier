@@ -146,39 +146,38 @@ email_classifier/
 
 ```python
 # Import the main pipeline
-from src.core.pipeline import EmailClassificationPipeline
+from src.core.preprocessing.pipeline import EmailClassificationPipeline
 
-# Initialize with chained strategy
-pipeline = EmailClassificationPipeline(strategy="chained")
+# Initialize with default configuration
+pipeline = EmailClassificationPipeline()
 
-# Run full pipeline with multi-label data
+# Run full pipeline
 results = pipeline.run_full_pipeline(
     data_path="data/raw/AppGallery.csv",
-    target_columns=["Type2", "Type3", "Type4"],
+    target_column="Type2",
     text_columns=["Ticket Summary", "Interaction content"]
 )
 
 # Print results
 print(f"Best model: {results['modeling_results']['best_model']}")
-print(f"Chain accuracy: {results['chain_accuracy']}")
+print(f"Best score: {results['modeling_results']['best_score']}")
+print(f"Pipeline time: {results['pipeline_time']:.2f} seconds")
 ```
 
 ### **Advanced Configuration:**
 
 ```python
 # Using YAML configuration
-from src.core.pipeline import EmailClassificationPipeline
+from src.core.preprocessing.pipeline import EmailClassificationPipeline
 
 # Load configuration
 pipeline = EmailClassificationPipeline(
-    config_path="config/chained_config.yaml",
-    strategy="chained"
+    config_path="config/chained_config.yaml"
 )
 
-# Run with custom models
+# Run pipeline
 results = pipeline.run_full_pipeline(
-    data_path="data/raw/AppGallery.csv",
-    models=["random_forest", "xgboost", "lightgbm"]
+    data_path="data/raw/AppGallery.csv"
 )
 ```
 
@@ -199,9 +198,12 @@ start_event_system(strategy="chained")
 
 ### **1. Strategy Pattern**
 ```python
-# Switch between chained and hierarchical strategies
-pipeline = EmailClassificationPipeline(strategy="chained")
-pipeline.switch_strategy("hierarchical")  # Runtime switching
+# Import the pipeline class
+from src.core.preprocessing.pipeline import EmailClassificationPipeline
+
+# Different configurations for different strategies
+chained_pipeline = EmailClassificationPipeline(config_path="config/chained_config.yaml")
+hierarchical_pipeline = EmailClassificationPipeline(config_path="config/hierarchical_config.yaml")
 ```
 
 ### **2. Factory Method Pattern**
@@ -216,17 +218,33 @@ xgb_model = ModelFactory.create_model("xgboost", learning_rate=0.1)
 ### **3. Composite Pattern**
 ```python
 # Pipeline treats all components as one unit
+from src.core.preprocessing.pipeline import EmailClassificationPipeline
+from src.core.preprocessing.data_selector import DataSelector
+
+pipeline = EmailClassificationPipeline()
+# Load email data using DataSelector
+data_selector = DataSelector("data/AppGallery.csv")  # Update path to your data file
+data, metadata = data_selector.process_data()
 pipeline.run_full_pipeline(data)  # Executes all components
 ```
 
 ### **4. Observer Pattern**
 ```python
 # Event-driven monitoring
+import logging
 from src.event_driven.event_bus import EventBus
+from src.core.evaluation.model_evaluator import ModelEvaluator
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 event_bus = EventBus()
-event_bus.subscribe("model_trained", logger.log_event)
-event_bus.subscribe("classification_complete", metrics.calculate)
+evaluator = ModelEvaluator()
+
+# Subscribe to events with proper logging
+event_bus.subscribe("model_trained", lambda event: logger.info(f"Model trained: {event}"))
+event_bus.subscribe("classification_complete", evaluator.evaluate_classification)
 ```
 
 ## 📋 **Design Decisions Comparison**
