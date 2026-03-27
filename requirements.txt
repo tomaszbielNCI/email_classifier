@@ -2,28 +2,35 @@
 pandas>=1.5.0
 numpy>=1.21.0
 scikit-learn>=1.1.0
+scipy>=1.8.0
 
 # Text processing and NLP
+nltk>=3.6.0
 stanza>=1.4.0
 transformers>=4.20.0
 torch>=1.12.0
 sentence-transformers>=2.2.0
 
-# Imbalanced learning
-imbalanced-learn>=0.9.0
-
-# Advanced models
+# ML models
 xgboost>=1.6.0
 lightgbm>=3.3.0
+catboost>=1.0.0
+
+# Imbalanced learning
+imbalanced-learn>=0.9.0
 
 # Visualization
 matplotlib>=3.5.0
 seaborn>=0.11.0
+plotly>=5.0.0
+wordcloud>=1.8.0
 
 # Utilities
 joblib>=1.1.0
 tqdm>=4.64.0
+pyyaml>=6.0
 
-# Optional: for better performance
-numpy>=1.21.0
-scipy>=1.8.0
+# Development
+pytest>=6.2.0
+black>=21.0.0
+coverage>=6.0.0

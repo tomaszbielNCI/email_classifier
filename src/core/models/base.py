@@ -69,6 +69,16 @@ class BaseModel(ABC):
             return self.model.get_params()
         return {}
     
+    def get_model_info(self) -> dict:
+        """Get comprehensive model information"""
+        return {
+            'name': self.get_model_name(),
+            'type': self.__class__.__bases__[0].__name__ if self.__class__.__bases__ else 'BaseModel',
+            'description': getattr(self, '__doc__', '').strip() or 'No description available',
+            'parameters': self.get_model_params(),
+            'is_trained': self.is_trained
+        }
+    
     def set_model_params(self, **params) -> None:
         """Set model parameters"""
         if hasattr(self.model, 'set_params'):
