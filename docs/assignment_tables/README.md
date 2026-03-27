@@ -45,22 +45,22 @@ docs/assignment_tables/
 ## 🚀 **Implementation Evidence**
 
 ### **GitHub Repository**
-- **URL**: https://github.com/tomaszbielNCI/email-classifier
+- **URL**: https://github.com/tomaszbielNCI/email_classifier
 - **Access**: Professor added as collaborator
 - **Commits**: Complete development history visible
 
 ### **Working Implementation**
-- **Design Choice 1**: 100% accuracy (Type 2: 1.0, Type 2+3: 1.0, Type 2+3+4: 1.0)
-- **Design Choice 2**: 100% accuracy (Type 2: 1.0, Type 3: 1.0, Type 4: 1.0)
+- **Design Choice 1**: 100% accuracy on test data (Type 2: 1.0, Type 2+3: 1.0, Type 2+3+4: 1.0)
+- **Design Choice 2**: 100% accuracy on test data (Type 2: 1.0, Type 3: 1.0, Type 4: 1.0)
 - **Professional Features**: Docker, documentation, testing
 
-## 📊 **Technical Excellence**
+## 📊 **Technical Correct**
 
 ### **Beyond Requirements**
-- **24 ML Models** (vs 1 required)
-- **Professional Documentation** (vs none required)
-- **Docker Support** (vs none required)
-- **Comprehensive Testing** (vs none required)
+- **24 ML Models** 
+- **Professional Documentation** 
+- **Docker Support** 
+- **Comprehensive Testing** 
 
 ### **Architecture Quality**
 - **Separation of Concerns** ✅
@@ -69,7 +69,3 @@ docs/assignment_tables/
 - **Template Method Pattern** ✅
 
 ## 🎯 **Ready for Submission**
-
-All assignment requirements are complete with professional implementation and documentation.
-
-**Total Score Potential**: 50/50 marks + bonus for professional quality
