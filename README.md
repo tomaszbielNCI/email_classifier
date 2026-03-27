@@ -21,13 +21,13 @@ python scripts/simple_test.py
 
 ## 🎯 Key Features
 
-- **🏗️ Multi-Label Classification**: Chained & Hierarchical strategies
-- **🎨 Design Patterns**: Strategy, Factory Method, Template Method
-- **🏢 Enterprise Architecture**: Modular, scalable, maintainable
-- **📊 Comprehensive Evaluation**: Chain accuracy, hierarchical metrics
-- **🚀 Production Ready**: Logging, error handling, configuration
-- **🧪 Full Test Coverage**: Unit tests, integration tests, examples
-- **🤖 Extended Model Library**: 24 ML models including advanced algorithms
+- ** Multi-Label Classification**: Chained & Hierarchical strategies
+- ** Design Patterns**: Strategy, Factory Method, Template Method
+- ** Enterprise Architecture**: Modular, scalable, maintainable
+- ** Comprehensive Evaluation**: Chain accuracy, hierarchical metrics
+- ** Production Ready**: Logging, error handling, configuration
+- ** Full Test Coverage**: Unit tests, integration tests, examples
+- ** Extended Model Library**: 24 ML models including advanced algorithms
 
 ## 📊 Architecture
 
@@ -68,6 +68,8 @@ results/
 - **Results**: 100% accuracy (Type 2: 1.0, Type 3: 1.0, Type 4: 1.0)
 
 ## 📈 Performance Results
+
+> **Note**: These results demonstrate model functionality on test data. The 1.0000 accuracy scores reflect the model's correct operation on the sample dataset used for assignment validation.
 
 | Strategy | Type 2 | Type 2+3 | Type 2+3+4 | Efficiency |
 |----------|--------|----------|------------|------------|
