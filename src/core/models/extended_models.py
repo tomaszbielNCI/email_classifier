@@ -1071,6 +1071,235 @@ class BaggingModel(BaseModel):
         }
 
 
+class HistGradientBoostingModel(BaseModel):
+    """Histogram-based Gradient Boosting"""
+    
+    def __init__(self, random_state: int = 42, **params):
+        super().__init__(random_state=random_state)
+        self.params = {
+            'max_iter': 100,
+            'max_depth': None,
+            'learning_rate': 0.1,
+            'l2_regularization': 0.0,
+            'random_state': random_state
+        }
+        self.params.update(params)
+        self._initialize_model()
+    
+    def _initialize_model(self):
+        from sklearn.ensemble import HistGradientBoostingClassifier
+        self.model = HistGradientBoostingClassifier(**self.params)
+    
+    def train(self, X: Union[pd.DataFrame, np.ndarray], y: Union[pd.Series, np.ndarray]) -> None:
+        """Train the Histogram Gradient Boosting model"""
+        if not self._validate_input(X, y):
+            return
+        
+        try:
+            self.model.fit(X, y)
+            self.is_trained = True
+            logging.info("Histogram Gradient Boosting trained successfully")
+                
+        except Exception as e:
+            logging.error(f"Error training Histogram Gradient Boosting: {str(e)}")
+            raise
+    
+    def predict(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
+        """Make predictions"""
+        if not self.is_trained:
+            raise ValueError("Model must be trained before making predictions")
+        
+        return self.model.predict(X)
+    
+    def print_results(self) -> None:
+        """Print model information"""
+        print(f"\nHistogram Gradient Boosting Model Results:")
+        print(f"Trained: {self.is_trained}")
+        print(f"Parameters: {self.params}")
+        if self.is_trained:
+            print(f"Number of iterations: {self.model.n_iter_}")
+    
+    def get_model_info(self) -> dict:
+        return {
+            'name': 'Histogram Gradient Boosting',
+            'type': 'ensemble',
+            'description': 'Histogram-based gradient boosting for faster training',
+            'parameters': self.params
+        }
+
+
+class SGDModel(BaseModel):
+    """Stochastic Gradient Descent Classifier"""
+    
+    def __init__(self, random_state: int = 42, **params):
+        super().__init__(random_state=random_state)
+        self.params = {
+            'loss': 'hinge',
+            'penalty': 'l2',
+            'alpha': 0.0001,
+            'max_iter': 1000,
+            'tol': 1e-3,
+            'random_state': random_state
+        }
+        self.params.update(params)
+        self._initialize_model()
+    
+    def _initialize_model(self):
+        self.model = SGDClassifier(**self.params)
+    
+    def train(self, X: Union[pd.DataFrame, np.ndarray], y: Union[pd.Series, np.ndarray]) -> None:
+        """Train the SGD model"""
+        if not self._validate_input(X, y):
+            return
+        
+        try:
+            self.model.fit(X, y)
+            self.is_trained = True
+            logging.info("SGD Classifier trained successfully")
+                
+        except Exception as e:
+            logging.error(f"Error training SGD Classifier: {str(e)}")
+            raise
+    
+    def predict(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
+        """Make predictions"""
+        if not self.is_trained:
+            raise ValueError("Model must be trained before making predictions")
+        
+        return self.model.predict(X)
+    
+    def print_results(self) -> None:
+        """Print model information"""
+        print(f"\nSGD Classifier Model Results:")
+        print(f"Trained: {self.is_trained}")
+        print(f"Parameters: {self.params}")
+        if self.is_trained:
+            print(f"Loss function: {self.model.loss}")
+    
+    def get_model_info(self) -> dict:
+        return {
+            'name': 'SGD Classifier',
+            'type': 'linear',
+            'description': 'Stochastic Gradient Descent classifier',
+            'parameters': self.params
+        }
+
+
+class VotingModel(BaseModel):
+    """Voting Classifier Ensemble"""
+    
+    def __init__(self, random_state: int = 42, **params):
+        super().__init__(random_state=random_state)
+        self.params = {
+            'estimators': [
+                ('rf', RandomForestClassifier(n_estimators=50, random_state=random_state)),
+                ('lr', LogisticRegression(random_state=random_state)),
+                ('svc', SVC(probability=True, random_state=random_state))
+            ],
+            'voting': 'soft',
+            'weights': None
+        }
+        self.params.update(params)
+        self._initialize_model()
+    
+    def _initialize_model(self):
+        self.model = VotingClassifier(**self.params)
+    
+    def train(self, X: Union[pd.DataFrame, np.ndarray], y: Union[pd.Series, np.ndarray]) -> None:
+        """Train the Voting model"""
+        if not self._validate_input(X, y):
+            return
+        
+        try:
+            self.model.fit(X, y)
+            self.is_trained = True
+            logging.info("Voting Classifier trained successfully")
+                
+        except Exception as e:
+            logging.error(f"Error training Voting Classifier: {str(e)}")
+            raise
+    
+    def predict(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
+        """Make predictions"""
+        if not self.is_trained:
+            raise ValueError("Model must be trained before making predictions")
+        
+        return self.model.predict(X)
+    
+    def print_results(self) -> None:
+        """Print model information"""
+        print(f"\nVoting Classifier Model Results:")
+        print(f"Trained: {self.is_trained}")
+        print(f"Parameters: {self.params}")
+        if self.is_trained:
+            print(f"Number of estimators: {len(self.model.estimators_)}")
+    
+    def get_model_info(self) -> dict:
+        return {
+            'name': 'Voting Classifier',
+            'type': 'ensemble',
+            'description': 'Voting ensemble combining multiple classifiers',
+            'parameters': self.params
+        }
+
+
+class RandomTreesEmbeddingModel(BaseModel):
+    """Random Trees Embedding for unsupervised feature transformation"""
+    
+    def __init__(self, random_state: int = 42, **params):
+        super().__init__(random_state=random_state)
+        self.params = {
+            'n_estimators': 100,
+            'max_depth': 5,
+            'min_samples_split': 2,
+            'min_samples_leaf': 1,
+            'random_state': random_state
+        }
+        self.params.update(params)
+        self._initialize_model()
+    
+    def _initialize_model(self):
+        from sklearn.ensemble import RandomTreesEmbedding
+        self.model = RandomTreesEmbedding(**self.params)
+    
+    def train(self, X: Union[pd.DataFrame, np.ndarray], y: Union[pd.Series, np.ndarray]) -> None:
+        """Train the Random Trees Embedding model"""
+        if not self._validate_input(X, y):
+            return
+        
+        try:
+            self.model.fit(X, y)
+            self.is_trained = True
+            logging.info("Random Trees Embedding trained successfully")
+                
+        except Exception as e:
+            logging.error(f"Error training Random Trees Embedding: {str(e)}")
+            raise
+    
+    def predict(self, X: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
+        """Make predictions"""
+        if not self.is_trained:
+            raise ValueError("Model must be trained before making predictions")
+        
+        return self.model.transform(X)
+    
+    def print_results(self) -> None:
+        """Print model information"""
+        print(f"\nRandom Trees Embedding Model Results:")
+        print(f"Trained: {self.is_trained}")
+        print(f"Parameters: {self.params}")
+        if self.is_trained:
+            print(f"Output dimension: {self.model.n_estimators}")
+    
+    def get_model_info(self) -> dict:
+        return {
+            'name': 'Random Trees Embedding',
+            'type': 'embedding',
+            'description': 'Unsupervised feature transformation using random trees',
+            'parameters': self.params
+        }
+
+
 # Extended model registry
 EXTENDED_MODEL_REGISTRY = {
     'enhanced_random_forest': ExtendedRandomForestModel,
@@ -1090,7 +1319,11 @@ EXTENDED_MODEL_REGISTRY = {
     'bernoulli_nb': BernoulliNBModel,
     'lda': LDAModel,
     'qda': QDAModel,
-    'bagging': BaggingModel
+    'bagging': BaggingModel,
+    'hist_gradient_boosting': HistGradientBoostingModel,
+    'sgd': SGDModel,
+    'voting': VotingModel,
+    'random_trees_embedding': RandomTreesEmbeddingModel
 }
 
 
