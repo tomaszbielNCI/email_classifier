@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 from typing import Union, Optional, Any
 import logging
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, AdaBoostClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, AdaBoostClassifier, HistGradientBoostingClassifier, RandomTreesEmbedding
 from sklearn.linear_model import LogisticRegression, RidgeClassifier, SGDClassifier
 from sklearn.svm import SVC, LinearSVC
 from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
@@ -1087,7 +1087,6 @@ class HistGradientBoostingModel(BaseModel):
         self._initialize_model()
     
     def _initialize_model(self):
-        from sklearn.ensemble import HistGradientBoostingClassifier
         self.model = HistGradientBoostingClassifier(**self.params)
     
     def train(self, X: Union[pd.DataFrame, np.ndarray], y: Union[pd.Series, np.ndarray]) -> None:
@@ -1259,7 +1258,6 @@ class RandomTreesEmbeddingModel(BaseModel):
         self._initialize_model()
     
     def _initialize_model(self):
-        from sklearn.ensemble import RandomTreesEmbedding
         self.model = RandomTreesEmbedding(**self.params)
     
     def train(self, X: Union[pd.DataFrame, np.ndarray], y: Union[pd.Series, np.ndarray]) -> None:

@@ -1,0 +1,180 @@
+flowchart TB
+    %% STYLE DEFINITIONS
+    classDef preprocessing fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    classDef datalayer fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
+    classDef modellayer fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef chained fill:#e1f5fe,stroke:#0288d1,stroke-width:2px
+    classDef hierarchical fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    classDef output fill:#ffebee,stroke:#c62828,stroke-width:2px
+    classDef cross fill:#eceff1,stroke:#546e7a,stroke-width:2px,stroke-dasharray: 5 5
+
+    %% ==================== PREPROCESSING LAYER ====================
+    subgraph PREP[📥 Preprocessing & Data Layer]
+        direction TB
+        A[("AppGallery.csv<br/>📁 Raw Data")] 
+        B["DataSelector<br/>(run_pipeline.py)<br/>🔍 Filter & Validate"]
+        C["TextPreprocessor<br/>(text_processor.py)<br/>🧹 Clean & Tokenize"]
+        D["FeatureExtractor<br/>(feature_extractor.py)<br/>📊 TF-IDF / Embeddings"]
+        E["Sampler / Splitter<br/>(run_pipeline.py)<br/>✂️ Train/Test Split"]
+        
+        A -->|raw data| B
+        B -->|filtered data| C
+        C -->|cleaned text| D
+        D -->|feature vectors| E
+        E -->|X_train, X_test, y2, y3, y4| F
+    end
+    
+    %% DATA ENCAPSULATION OBJECT
+    F["DataStore Object<br/>📦 Encapsulated Data<br/>────────────────<br/>• X_train, X_test<br/>• y2, y3, y4<br/>• Metadata"] 
+    
+    %% CROSS-CUTTING CONFIGURATION
+    CONFIG["config.py<br/>⚙️ Global Configuration<br/>────────────────<br/>• Paths<br/>• Hyperparameters<br/>• Class mappings"]
+    
+    %% ==================== MODEL LAYER (ABSTRACTION) ====================
+    subgraph MODEL_BASE[🏗️ Model Layer - Abstraction]
+        direction TB
+        BM["BaseModel (ABC)<br/>(base.py)<br/>────────────────<br/>+ train() [abstract]<br/>+ predict() [abstract]<br/>+ print_results() [abstract]"]
+        
+        subgraph CONCRETE_MODELS[Concrete Implementations]
+            RF["RandomForestModel<br/>(extended_models.py)"]
+            SVM["SVMModel<br/>(extended_models.py)"]
+            XGB["XGBoostModel<br/>(extended_models.py)"]
+        end
+        
+        BM -.->|inherits & implements| RF
+        BM -.->|inherits & implements| SVM
+        BM -.->|inherits & implements| XGB
+    end
+    
+    %% ==================== MODEL FACTORY ====================
+    MF["ModelFactory<br/>(model_factory.py)<br/>🏭 Factory Pattern<br/>────────────────<br/>+ get_model(type)<br/>+ get_chain_model()<br/>+ get_hierarchical_model()"]
+    
+    %% ==================== STRATEGY CONTROLLER ====================
+    CTRL["StrategyController<br/>(run_strategies.py)<br/>🎮 Main Controller<br/>────────────────<br/>+ run_chained()<br/>+ run_hierarchical()"]
+    
+    %% ==================== DESIGN CHOICE 1: CHAINED ====================
+    subgraph CHAINED[🔗 Design Choice 1: Chained Multi-Outputs]
+        direction TB
+        
+        CS["ChainedMultiLabelStrategy<br/>(chained_strategy.py)<br/>────────────────<br/>+ execute()<br/>+ evaluate()"]
+        
+        subgraph CHAIN_MODELS[Chained Model Instances - Single Algorithm]
+            direction LR
+            M1["Model Instance 1<br/>🎯 Type 2 Only<br/>────────────────<br/>Input: X<br/>Output: y2"]
+            M2["Model Instance 2<br/>🎯 Type 2+3 Combined<br/>────────────────<br/>Input: X<br/>Output: y2+y3"]
+            M3["Model Instance 3<br/>🎯 Type 2+3+4 Combined<br/>────────────────<br/>Input: X<br/>Output: y2+y3+y4"]
+        end
+        
+        subgraph CHAINED_OUTPUT[Chained Outputs]
+            CP1["Prediction: Type 2"]
+            CP2["Prediction: Type 2+3"]
+            CP3["Prediction: Type 2+3+4"]
+        end
+    end
+    
+    %% ==================== DESIGN CHOICE 2: HIERARCHICAL ====================
+    subgraph HIERARCHICAL[🌳 Design Choice 2: Hierarchical Modelling]
+        direction TB
+        
+        HS["HierarchicalMultiLabelStrategy<br/>(hierarchical_strategy.py)<br/>────────────────<br/>+ execute()<br/>+ evaluate()<br/>+ filter_by_parent()"]
+        
+        subgraph LEVEL1[Level 1: Type 2 Classification]
+            T2M["Type 2 Model<br/>🎯 Base Classifier<br/>────────────────<br/>Predicts: Type 2<br/>Output: class_label"]
+        end
+        
+        subgraph LEVEL2[Level 2: Type 3 per Type 2 Class]
+            direction LR
+            F3["DataFilter<br/>(filter.py)<br/>────────────────<br/>+ filter_by_type2()"]
+            
+            subgraph T3_MODELS[Type 3 Models - One per Type 2 Class]
+                T3_A["Type 3 Model<br/>for Class A"]
+                T3_B["Type 3 Model<br/>for Class B"]
+                T3_C["Type 3 Model<br/>for Class C"]
+                T3_OTHER["Type 3 Model<br/>for Other Classes"]
+            end
+        end
+        
+        subgraph LEVEL3[Level 3: Type 4 per Type 2+3 Combination]
+            direction LR
+            F4["DataFilter<br/>(filter.py)<br/>────────────────<br/>+ filter_by_type2_type3()"]
+            
+            subgraph T4_MODELS[Type 4 Models - One per Type 2+3 Path]
+                T4_AA["Type 4 Model<br/>A + Class1"]
+                T4_AB["Type 4 Model<br/>A + Class2"]
+                T4_BA["Type 4 Model<br/>B + Class1"]
+                T4_CA["Type 4 Model<br/>C + Class1"]
+                T4_DOTS["..."]
+            end
+        end
+        
+        subgraph HIER_OUTPUT[Hierarchical Outputs]
+            HP2["Prediction: Type 2"]
+            HP3["Prediction: Type 3<br/>(context-aware)"]
+            HP4["Prediction: Type 4<br/>(context-aware)"]
+        end
+    end
+    
+    %% ==================== EVALUATION LAYER ====================
+    subgraph EVAL[📊 Evaluation Layer]
+        direction LR
+        EVAL_CHAINED["Chained Evaluator<br/>────────────────<br/>• Accuracy per level<br/>• Combined accuracy<br/>• Dependency metrics"]
+        EVAL_HIER["Hierarchical Evaluator<br/>────────────────<br/>• Parent-dependent accuracy<br/>• Conditional metrics<br/>• Path accuracy"]
+        COMPARE["Comparison Module<br/>────────────────<br/>• Performance comparison<br/>• Trade-off analysis<br/>• Recommendation"]
+    end
+    
+    %% ==================== CONNECTORS - DATA FLOW ====================
+    %% Preprocessing to Data Store
+    E ==>|"Data flow: X_train, X_test,<br/>y2, y3, y4"| F
+    CONFIG -.->|configuration| B
+    CONFIG -.->|configuration| C
+    CONFIG -.->|configuration| D
+    CONFIG -.->|configuration| MF
+    
+    %% Data Store to Strategies
+    F ==>|"data"| CTRL
+    F ==>|"data"| CS
+    F ==>|"data"| HS
+    
+    %% Controller to Strategies
+    CTRL -->|"instantiate & execute"| CS
+    CTRL -->|"instantiate & execute"| HS
+    
+    %% Factory Integration
+    MF -->|"provides model instances"| CS
+    MF -->|"provides model instances"| HS
+    MF -->|"provides base models"| CHAIN_MODELS
+    MF -->|"provides base models"| T2M
+    MF -->|"provides base models"| T3_MODELS
+    MF -->|"provides base models"| T4_MODELS
+    
+    %% Model Base Connection
+    MODEL_BASE -->|"abstract interface"| MF
+    
+    %% Chained Internal Flow
+    CS -->|"creates pipeline"| CHAIN_MODELS
+    CHAIN_MODELS -->|"predictions"| CHAINED_OUTPUT
+    CHAINED_OUTPUT -->|"results"| EVAL_CHAINED
+    
+    %% Hierarchical Internal Flow
+    HS -->|"creates pipeline"| LEVEL1
+    T2M -->|"Type 2 predictions + metadata"| F3
+    F3 -->|"filtered data per class"| T3_MODELS
+    T3_MODELS -->|"Type 3 predictions + metadata"| F4
+    F4 -->|"filtered data per path"| T4_MODELS
+    T2M -->|"Type 2 output"| HP2
+    T3_MODELS -->|"Type 3 output"| HP3
+    T4_MODELS -->|"Type 4 output"| HP4
+    HP2 & HP3 & HP4 -->|"combined results"| EVAL_HIER
+    
+    %% Evaluation Flow
+    EVAL_CHAINED -->|"metrics"| COMPARE
+    EVAL_HIER -->|"metrics"| COMPARE
+    
+    %% ==================== APPLY STYLES ====================
+    class A,B,C,D,E,F preprocessing
+    class CONFIG cross
+    class BM,RF,SVM,XGB modellayer
+    class MF,CTRL cross
+    class CS,CHAIN_MODELS,CHAINED_OUTPUT chained
+    class HS,LEVEL1,F3,T3_MODELS,F4,T4_MODELS,HIER_OUTPUT hierarchical
+    class EVAL_CHAINED,EVAL_HIER,COMPARE output

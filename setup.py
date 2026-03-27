@@ -17,12 +17,12 @@ with open(os.path.join(this_directory, 'requirements.txt'), encoding='utf-8') as
 setup(
     name="email-classifier",
     version="1.0.0",
-    author="Email Classifier Team",
-    author_email="team@example.com",
+    author="Tomasz Biel",
+    author_email="x25113186@student.ncirl.ie",
     description="Multi-label email classification with chained and hierarchical strategies",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/your-username/email-classifier",
+    url="https://github.com/tomaszbielNCI/email-classifier",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -67,8 +67,8 @@ setup(
     },
     keywords="email classification, machine learning, nlp, multi-label, chained, hierarchical",
     project_urls={
-        "Bug Reports": "https://github.com/your-username/email-classifier/issues",
-        "Source": "https://github.com/your-username/email-classifier",
+        "Bug Reports": "https://github.com/tomaszbielNCI/email-classifier/issues",
+        "Source": "https://github.com/tomaszbielNCI/email-classifier",
         "Documentation": "https://email-classifier.readthedocs.io/",
     },
 )
