@@ -1,0 +1,86 @@
+================================================================================
+ MODEL EXECUTION REPORT
+================================================================================
+
+ EXECUTION SUMMARY
+----------------------------------------
+Total Models Tested: 6
+Total Execution Time: 2.6863s
+Winning Model: gradient_boosting
+Winning Accuracy: 0.9650
+Winning Training Time: 1.1506s
+Description: Gradient Boosting - sequential trees
+
+ MODEL RANKINGS
+----------------------------------------
+Rank Model              Accuracy   F1-Score   Time (s)  
+----------------------------------------
+1.   gradient_boosting  0.9650     0.9651     1.1506    
+2.   random_forest      0.9600     0.9600     0.1924    
+3.   xgboost            0.9600     0.9601     0.1358    
+4.   lightgbm           0.9600     0.9601     0.3131    
+5.   catboost           0.9600     0.9600     0.7163    
+6.   logistic_regression 0.9450     0.9453     0.0095    
+
+ FEATURE IMPORTANCE
+----------------------------------------
+Top 5 Features: [0.00210149 0.00511339 0.04174152 0.00137219 0.20115204]
+
+ RECOMMENDATIONS
+----------------------------------------
+1. Excellent model performance! Consider deployment.
+
+ DETAILED MODEL INFORMATION
+================================================================================
+
+🔹 GRADIENT_BOOSTING
+   Training Accuracy: 1.0000
+   Validation Accuracy: 0.9650
+   Training F1-Score: 1.0000
+   Validation F1-Score: 0.9651
+   Training Time: 1.1506s
+   Parameters: {'n_estimators': 100, 'random_state': 42}
+
+🔹 RANDOM_FOREST
+   Training Accuracy: 1.0000
+   Validation Accuracy: 0.9600
+   Training F1-Score: 1.0000
+   Validation F1-Score: 0.9600
+   Training Time: 0.1924s
+   Parameters: {'n_estimators': 100, 'random_state': 42, 'n_jobs': -1}
+
+🔹 XGBOOST
+   Training Accuracy: 1.0000
+   Validation Accuracy: 0.9600
+   Training F1-Score: 1.0000
+   Validation F1-Score: 0.9601
+   Training Time: 0.1358s
+   Parameters: {'random_state': 42, 'n_jobs': -1}
+
+🔹 LIGHTGBM
+   Training Accuracy: 1.0000
+   Validation Accuracy: 0.9600
+   Training F1-Score: 1.0000
+   Validation F1-Score: 0.9601
+   Training Time: 0.3131s
+   Parameters: {'random_state': 42, 'n_jobs': -1}
+
+🔹 CATBOOST
+   Training Accuracy: 1.0000
+   Validation Accuracy: 0.9600
+   Training F1-Score: 1.0000
+   Validation F1-Score: 0.9600
+   Training Time: 0.7163s
+   Parameters: {'random_state': 42, 'verbose': False, 'iterations': 100}
+
+🔹 LOGISTIC_REGRESSION
+   Training Accuracy: 0.9525
+   Validation Accuracy: 0.9450
+   Training F1-Score: 0.9525
+   Validation F1-Score: 0.9453
+   Training Time: 0.0095s
+   Parameters: {'random_state': 42, 'max_iter': 1000}
+
+================================================================================
+Report generated: 2026-02-19 21:36:10
+================================================================================

@@ -79,3 +79,45 @@
 2026-02-06 01:26:52,356 - INFO - Model evaluation naive_bayes: accuracy=0.8780, f1=0.8713
 2026-02-06 01:26:52,357 - INFO - Best model: random_forest (score: 0.9756)
 2026-02-06 01:26:52,357 - INFO - Pipeline completed successfully in 0.50 seconds
+2026-02-10 15:51:58,420 - INFO - Starting full email classification pipeline
+2026-02-10 15:51:58,421 - INFO - Step 1: Data selection
+2026-02-10 15:51:58,469 - INFO - Loaded data: (122, 18)
+2026-02-10 15:51:58,469 - INFO - Step 3: Text cleaning
+2026-02-10 15:51:58,469 - INFO - Starting data preprocessing...
+2026-02-10 15:51:58,470 - INFO - Cleaning column: Ticket Summary
+2026-02-10 15:51:58,473 - INFO - Cleaning column: Interaction content
+2026-02-10 15:51:58,559 - INFO - Removed 4 rows with empty texts
+2026-02-10 15:51:58,559 - INFO - Preprocessing completed. Data shape: (118, 20)
+2026-02-10 15:51:58,559 - INFO - Step 4: Data structuring
+2026-02-10 15:51:58,561 - INFO - Encoded y2: 3 classes
+2026-02-10 15:51:58,561 - INFO - Encoded y1: 1 classes
+2026-02-10 15:51:58,561 - INFO - Step 5: Text vectorization
+2026-02-10 15:51:58,562 - INFO - Created TF-IDF vectorizer: max_features=10000, ngram_range=(1, 2)
+2026-02-10 15:51:58,573 - INFO - Vectorized 118 texts, shape: (118, 102)
+2026-02-10 15:51:58,575 - INFO - Created TF-IDF vectorizer: max_features=10000, ngram_range=(1, 2)
+2026-02-10 15:51:58,636 - INFO - Vectorized 118 texts, shape: (118, 4646)
+2026-02-10 15:51:58,646 - INFO - Combined 2 feature representations, result shape: (118, 4748)
+2026-02-10 15:51:58,646 - INFO - Vectorized features: shape (118, 4748)
+2026-02-10 15:51:58,647 - INFO - Step 6: Data balancing
+2026-02-10 15:51:58,649 - INFO - Imbalance analysis: ratio=3.78, classes=3
+2026-02-10 15:51:58,649 - INFO - Imbalance analysis: ratio=3.78
+2026-02-10 15:51:58,651 - INFO - Imbalance analysis: ratio=3.78, classes=3
+2026-02-10 15:51:58,667 - INFO - Random oversampling: 118 -> 204 samples
+2026-02-10 15:51:58,668 - INFO - Data balanced: 118 -> 204
+2026-02-10 15:51:58,668 - INFO - Step 7: Learning strategy analysis
+2026-02-10 15:51:58,707 - INFO - Label balance score: 1.000
+2026-02-10 15:51:58,707 - INFO - Supervised feasibility score: 0.800
+2026-02-10 15:51:58,707 - INFO - Recommendation: supervised
+2026-02-10 15:51:58,707 - INFO - Recommended strategy: supervised
+2026-02-10 15:51:58,707 - INFO - Step 8: Splitting data into training and test sets
+2026-02-10 15:51:58,717 - INFO - Basic split: 163 training, 41 test
+2026-02-10 15:51:58,717 - INFO - Data split: 163 training, 41 test
+2026-02-10 15:51:58,718 - INFO - Step 9: Model training and evaluation
+2026-02-10 15:51:59,099 - INFO - Model random_forest trained successfully. Time: 0.27s, Accuracy: 1.0000
+2026-02-10 15:51:59,258 - INFO - Model logistic_regression trained successfully. Time: 0.15s, Accuracy: 0.9755
+2026-02-10 15:51:59,273 - INFO - Model naive_bayes trained successfully. Time: 0.00s, Accuracy: 0.8834
+2026-02-10 15:51:59,315 - INFO - Model evaluation random_forest: accuracy=0.9756, f1=0.9756
+2026-02-10 15:51:59,324 - INFO - Model evaluation logistic_regression: accuracy=0.9512, f1=0.9512
+2026-02-10 15:51:59,335 - INFO - Model evaluation naive_bayes: accuracy=0.8780, f1=0.8713
+2026-02-10 15:51:59,339 - INFO - Best model: random_forest (score: 0.9756)
+2026-02-10 15:51:59,339 - INFO - Pipeline completed successfully in 0.92 seconds

@@ -60,7 +60,7 @@ pip install -r requirements.txt
 ### Basic Usage
 
 ```python
-from src.pipeline import EmailClassificationPipeline
+from src.core.preprocessing.pipeline import EmailClassificationPipeline
 
 # Initialize pipeline
 pipeline = EmailClassificationPipeline()
@@ -101,7 +101,7 @@ config = {
 }
 
 # Import pipeline
-from src.pipeline import EmailClassificationPipeline
+from src.core.preprocessing.pipeline import EmailClassificationPipeline
 
 # Pipeline with configuration
 pipeline = EmailClassificationPipeline(config_path="config.json")
@@ -242,7 +242,8 @@ The pipeline can be configured via JSON file:
 
 ```python
 # Create and train pipeline
-from src.pipeline import EmailClassificationPipeline
+from src.core.preprocessing.pipeline import EmailClassificationPipeline
+
 pipeline = EmailClassificationPipeline()
 results = pipeline.run_full_pipeline("data/AppGallery.csv")
 
@@ -250,7 +251,8 @@ results = pipeline.run_full_pipeline("data/AppGallery.csv")
 pipeline.save_pipeline("email_classifier_pipeline.pkl")
 
 # Load pipeline
-from src.pipeline import EmailClassificationPipeline
+from src.core.preprocessing.pipeline import EmailClassificationPipeline
+
 loaded_pipeline = EmailClassificationPipeline()
 loaded_pipeline.load_pipeline("email_classifier_pipeline.pkl")
 

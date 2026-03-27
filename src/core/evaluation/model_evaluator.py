@@ -256,7 +256,7 @@ class ModelEvaluator:
         
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize)
         
-        # Wykres metryk
+        # Support chart
         x = np.arange(len(classes))
         width = 0.25
         
@@ -272,7 +272,7 @@ class ModelEvaluator:
         ax1.legend()
         ax1.grid(True, alpha=0.3)
         
-        # Wykres support
+        # Support chart
         support = [per_class[cls]['support'] for cls in classes]
         
         ax2.bar(classes, support, alpha=0.8, color='skyblue')

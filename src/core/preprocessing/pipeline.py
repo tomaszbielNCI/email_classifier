@@ -9,22 +9,21 @@ import pandas as pd
 import numpy as np
 import logging
 from typing import Dict, List, Tuple, Optional, Any, Union
-from pathlib import Path
 import json
 import time
 import os
 
 # Module imports
-from data_selector import DataSelector
-from translator import Translator
-from text_preprocessor import TextPreprocessor
-from data_structurer import DataStructurer
-from vectorizer import Vectorizer
-from sampler import Sampler
-from strategy import StrategySelector
-from data_splitter import DataSplitter
-from model_trainer import ModelTrainer
-from model_evaluator import ModelEvaluator
+from .data_selector import DataSelector
+from .translator import Translator
+from .text_preprocessor import TextPreprocessor
+from .data_structurer import DataStructurer
+from .vectorizer import Vectorizer
+from .sampler import Sampler
+from .strategy import StrategySelector
+from .data_splitter import DataSplitter
+from ..models.model_trainer import ModelTrainer
+from ..evaluation.model_evaluator import ModelEvaluator
 
 
 class EmailClassificationPipeline:
@@ -105,7 +104,7 @@ class EmailClassificationPipeline:
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
-                logging.FileHandler('email_classifier.log'),
+                logging.FileHandler('../../../results/email_classifier.log'),
                 logging.StreamHandler()
             ]
         )

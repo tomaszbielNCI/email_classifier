@@ -19,7 +19,7 @@ except ImportError:
     CATBOOST_AVAILABLE = False
     logging.warning("CatBoost not installed. Install with: pip install catboost")
 
-from model_trainer import ModelTrainer
+from src.core.models.model_trainer import ModelTrainer
 
 
 class ModelExecutor:
