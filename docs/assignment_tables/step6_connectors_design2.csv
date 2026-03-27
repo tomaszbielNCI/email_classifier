@@ -1,11 +1,11 @@
 Connector,From,To,Data Flow
-data_to_strategy,DataSplitter,HierarchicalStrategy,X_train, X_test, y2, y3, y4
-train_level1,HierarchicalStrategy,Type2 Model,Full X_train with y2
-predict_level1,Type2 Model,HierarchicalStrategy,Type 2 predictions on X_test
+data_to_strategy,DataSplitter,HierarchicalStrategy,Training and test data
+train_level1,HierarchicalStrategy,Type2 Model,Training data
+predict_level1,Type2 Model,HierarchicalStrategy,Predictions
 filter_level2,HierarchicalStrategy,Type3 Models,Filtered data per Type 2 class
-train_level2,HierarchicalStrategy,Type3 Models,Filtered X_train with y3
+train_level2,HierarchicalStrategy,Type3 Models,Filtered training data
 predict_level2,Type3 Models,HierarchicalStrategy,Type 3 predictions
 filter_level3,HierarchicalStrategy,Type4 Models,Filtered data per Type 2+3 path
-train_level3,HierarchicalStrategy,Type4 Models,Filtered X_train with y4
+train_level3,HierarchicalStrategy,Type4 Models,Filtered training data
 evaluation_call,HierarchicalStrategy,HierarchicalEvaluator,Predictions and true labels
 results_flow,HierarchicalEvaluator,StrategyController,Performance metrics

@@ -4,7 +4,7 @@ TextPreprocessor,src/core/preprocessing/text_preprocessor.py,Cleans and tokenize
 Vectorizer,src/core/preprocessing/vectorizer.py,Converts text to TF-IDF vectors
 DataSplitter,src/core/preprocessing/data_splitter.py,Splits data into train/test
 ModelFactory,src/core/models/model_factory.py,Creates model instances
-BaseModel,src/core/models/base.py,Abstract base class (train, predict, print_results)
+BaseModel,src/core/models/base.py,Abstract base class
 RandomForestModel,src/core/models/extended_models.py,Random Forest implementation
 XGBoostModel,src/core/models/extended_models.py,XGBoost implementation
 ChainedMultiLabelStrategy,src/core/strategies/chained_strategy.py,Implements chained multi-output strategy
