@@ -1,0 +1,17 @@
+Data Element,Source,Destination,Description
+raw_data,AppGallery.csv,DataSelector,Original CSV file
+filtered_data,DataSelector,TextPreprocessor,Cleaned and filtered DataFrame
+cleaned_text,TextPreprocessor,Vectorizer,Tokenized and cleaned text strings
+feature_vectors,Vectorizer,DataSplitter,TF-IDF matrix (X)
+X_train,DataSplitter,HierarchicalStrategy,Full feature matrix (training)
+X_test,DataSplitter,HierarchicalStrategy,Full feature matrix (testing)
+y2,DataSplitter,HierarchicalStrategy,Type 2 original labels
+y3,DataSplitter,HierarchicalStrategy,Type 3 original labels
+y4,DataSplitter,HierarchicalStrategy,Type 4 original labels
+pred_type2,Type2 Model,HierarchicalStrategy,Predictions for Type 2
+filtered_X_3_classA,HierarchicalStrategy,Type3 Model A,X where Type 2 = Class A
+filtered_y_3_classA,HierarchicalStrategy,Type3 Model A,y3 where Type 2 = Class A
+pred_type3,Type3 Models,HierarchicalStrategy,Final Type 3 predictions
+filtered_X_4_pathAB,HierarchicalStrategy,Type4 Model AB,X where Type 2=A and Type 3=B
+pred_type4,Type4 Models,HierarchicalStrategy,Final Type 4 predictions
+performance_metrics,HierarchicalEvaluator,StrategyController,Hierarchical accuracy scores

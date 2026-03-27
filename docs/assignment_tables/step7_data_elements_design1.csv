@@ -1,0 +1,16 @@
+Data Element,Source,Destination,Description
+raw_data,AppGallery.csv,DataSelector,Original CSV file
+filtered_data,DataSelector,TextPreprocessor,Cleaned and filtered DataFrame
+cleaned_text,TextPreprocessor,Vectorizer,Tokenized and cleaned text strings
+feature_vectors,Vectorizer,DataSplitter,TF-IDF matrix (X)
+X_train,DataSplitter,ChainedMultiLabelStrategy,Feature matrix (training)
+X_test,DataSplitter,ChainedMultiLabelStrategy,Feature matrix (testing)
+y2,DataSplitter,ChainedMultiLabelStrategy,Type 2 original labels
+y3,DataSplitter,ChainedMultiLabelStrategy,Type 3 original labels
+y4,DataSplitter,ChainedMultiLabelStrategy,Type 4 original labels
+combined_23,ChainedMultiLabelStrategy,Model Use 2,y2 + y3 concatenated
+combined_234,ChainedMultiLabelStrategy,Model Use 3,y2 + y3 + y4 concatenated
+pred_type2,Model Use 1,ChainedMultiLabelStrategy,Predictions for Type 2 only
+pred_type23,Model Use 2,ChainedMultiLabelStrategy,Predictions for Type 2+3 combined
+pred_type234,Model Use 3,ChainedMultiLabelStrategy,Predictions for all types combined
+performance_metrics,ChainedEvaluator,StrategyController,Accuracy scores for each level

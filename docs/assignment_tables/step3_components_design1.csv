@@ -1,0 +1,12 @@
+Component,File,Responsibility
+DataSelector,src/core/preprocessing/data_selector.py,Loads and filters AppGallery.csv
+TextPreprocessor,src/core/preprocessing/text_preprocessor.py,Cleans and tokenizes text
+Vectorizer,src/core/preprocessing/vectorizer.py,Converts text to TF-IDF vectors
+DataSplitter,src/core/preprocessing/data_splitter.py,Splits data into train/test
+ModelFactory,src/core/models/model_factory.py,Creates model instances
+BaseModel,src/core/models/base.py,Abstract base class (train, predict, print_results)
+RandomForestModel,src/core/models/extended_models.py,Random Forest implementation
+XGBoostModel,src/core/models/extended_models.py,XGBoost implementation
+ChainedMultiLabelStrategy,src/core/strategies/chained_strategy.py,Implements chained multi-output strategy
+ChainedEvaluator,src/core/evaluation/chained_evaluator.py,Evaluates chained strategy performance
+StrategyController,scripts/run_strategies.py,Orchestrates strategy execution

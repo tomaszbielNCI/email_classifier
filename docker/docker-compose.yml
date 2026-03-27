@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # Main email classifier service
+  email-classifier:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: email-classifier-app
+    volumes:
+      - ../data:/app/data
+      - ../results:/app/results
+      - ../config:/app/config
+    environment:
+      - PYTHONPATH=/app/src
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8000:8000"
+    networks:
+      - email-classifier-network
+    restart: unless-stopped
+
+  # Optional: Jupyter notebook for experimentation
+  jupyter:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.jupyter
+    container_name: email-classifier-jupyter
+    ports:
+      - "8888:8888"
+    volumes:
+      - ../:/app
+      - ../data:/app/data
+      - ../results:/app/results
+    environment:
+      - PYTHONPATH=/app/src
+    networks:
+      - email-classifier-network
+    restart: unless-stopped
+
+networks:
+  email-classifier-network:
+    driver: bridge
+
+volumes:
+  email-classifier-data:
+    driver: local
+  email-classifier-results:
+    driver: local

@@ -1,0 +1,47 @@
+# Jupyter Notebook Docker Configuration
+# For interactive development and experimentation
+
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install system dependencies including Jupyter requirements
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    git \
+    curl \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt .
+
+# Install Python dependencies including Jupyter
+RUN pip install --no-cache-dir -r requirements.txt \
+    jupyter \
+    jupyterlab \
+    ipywidgets \
+    matplotlib
+
+# Download NLTK data
+RUN python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk.download('wordnet')"
+
+# Copy source code
+COPY src/ ./src/
+COPY scripts/ ./scripts/
+COPY tests/ ./tests/
+COPY data/ ./data/
+COPY results/ ./results/
+COPY config/ ./config/
+
+# Create non-root user
+RUN useradd --create-home --shell /bin/bash appuser && chown -R appuser:appuser /app
+USER appuser
+
+# Expose Jupyter port
+EXPOSE 8888
+
+# Start Jupyter Lab
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]

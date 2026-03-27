@@ -1,0 +1,11 @@
+Connector,From,To,Data Flow
+data_flow_1,DataSelector,TextPreprocessor,Filtered DataFrame
+data_flow_2,TextPreprocessor,Vectorizer,Cleaned text strings
+data_flow_3,Vectorizer,DataSplitter,Feature vectors (X)
+data_flow_4,DataSplitter,ChainedMultiLabelStrategy,X_train, X_test, y2, y3, y4
+factory_call,ChainedMultiLabelStrategy,ModelFactory,Model type request (e.g., "random_forest")
+model_instance,ModelFactory,BaseModel,Concrete model instance
+train_call,ChainedMultiLabelStrategy,BaseModel.train(),Training data (X_train, y_combined)
+predict_call,ChainedMultiLabelStrategy,BaseModel.predict(),Test data (X_test)
+evaluation_call,ChainedMultiLabelStrategy,ChainedEvaluator,Predictions and true labels
+results_flow,ChainedEvaluator,StrategyController,Performance metrics
